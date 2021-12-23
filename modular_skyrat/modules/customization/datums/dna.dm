@@ -172,15 +172,15 @@ GLOBAL_LIST_EMPTY(total_uf_len_by_block)
 					var/list/marking_list = GLOB.body_markings_per_limb[zone]
 					set_uni_feature_block(blocknumber, construct_block(marking_list.Find(marking), marking_list.len))
 
-/datum/dna/proc/update_body_size()
-	if(!holder || species.body_size_restricted || current_body_size == features["body_size"])
+/datum/dna/proc/update_body_size(desired_size = 0)
+	if(!holder || species.body_size_restricted || current_body_size == (desired_size ? desired_size : features["body_size"]))
 		return
-	var/change_multiplier = features["body_size"] / current_body_size
+	var/change_multiplier = desired_size ? desired_size : features["body_size"] / current_body_size
 	//We update the translation to make sure our character doesn't go out of the southern bounds of the tile
 	var/translate = ((change_multiplier-1) * 32)/2
 	holder.transform = holder.transform.Scale(change_multiplier)
 	holder.transform = holder.transform.Translate(0, translate)
-	current_body_size = features["body_size"]
+	current_body_size = desired_size ? desired_size : features["body_size"]
 
 /mob/living/carbon/set_species(datum/species/mrace, icon_update = TRUE, var/list/override_features, var/list/override_mutantparts, var/list/override_markings, retain_features = FALSE, retain_mutantparts = FALSE)
 	if(QDELETED(src))

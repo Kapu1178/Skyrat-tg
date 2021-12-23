@@ -19,7 +19,7 @@ These procs are incredibly expensive and should only really be run once. That's 
 
 SUBSYSTEM_DEF(decay)
 	name = "Decay System"
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 	init_order = INIT_ORDER_DECAY
 
 	var/list/possible_turfs = list()
