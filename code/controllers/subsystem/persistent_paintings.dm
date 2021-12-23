@@ -1,7 +1,7 @@
 SUBSYSTEM_DEF(persistent_paintings)
 	name = "Persistent Paintings"
 	init_order = INIT_ORDER_PERSISTENT_PAINTINGS
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 
 	/// A list of painting frames that this controls
 	var/list/obj/structure/sign/painting/painting_frames = list()

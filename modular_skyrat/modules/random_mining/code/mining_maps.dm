@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(randommining)
 	name = "Random Mining"
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 	init_order = INIT_ORDER_TICKER
 
 	var/list/possible_names = list()

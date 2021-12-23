@@ -31,6 +31,7 @@
 SUBSYSTEM_DEF(discord)
 	name = "Discord"
 	wait = 3000
+	flags = SS_NO_INIT
 	init_order = INIT_ORDER_DISCORD
 
 	/// People to save to notify file

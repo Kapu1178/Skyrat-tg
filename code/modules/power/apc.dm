@@ -66,7 +66,7 @@
 
 // Arcing: - SKYRAT EDIT ADD
 /// Lower excess value for APC arcing, 5% chance to arc
-#define APC_ARC_LOWERLIMIT 2500000
+#define APC_ARC_LOWERLIMIT INFINITY
 /// Moderate excess value for APC arcing, 10% chance to arc
 #define APC_ARC_MEDIUMLIMIT 5000000
 /// Upper excess value for for APC arcing, 15% chance to arc
@@ -178,7 +178,7 @@
 	///Represents a signel source of power alarms for this apc
 	var/datum/alarm_handler/alarm_manager
 
-	var/shock_proof = FALSE // SKYRAT EDIT ADD - APC Arcing. If TRUE, APCs will not arc.
+	var/shock_proof = TRUE
 
 /obj/machinery/power/apc/unlocked
 	locked = FALSE

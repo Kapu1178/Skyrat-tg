@@ -1,5 +1,6 @@
 SUBSYSTEM_DEF(events)
 	name = "Events"
+	flags = SS_NO_INIT
 	init_order = INIT_ORDER_EVENTS
 	runlevels = RUNLEVEL_GAME
 

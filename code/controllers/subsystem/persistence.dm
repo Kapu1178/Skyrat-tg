@@ -5,7 +5,7 @@
 SUBSYSTEM_DEF(persistence)
 	name = "Persistence"
 	init_order = INIT_ORDER_PERSISTENCE
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 
 	///instantiated wall engraving components
 	var/list/wall_engravings = list()

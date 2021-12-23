@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(trading_card_game)
 	name = "Trading Card Game"
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 	init_order = INIT_ORDER_TCG
 	var/card_directory = "strings/tcg"
 	var/list/card_files = list("set_one.json","set_two.json")
