@@ -29,8 +29,6 @@
 			C.cell.charge = 0
 
 /proc/power_restore()
-
-	priority_announce("Power has been restored to [station_name()]. We apologize for the inconvenience.", "Power Systems Nominal", ANNOUNCER_POWERON)
 	for(var/obj/machinery/power/apc/C in GLOB.machines)
 		if(C.cell && is_station_level(C.z))
 			C.cell.charge = C.cell.maxcharge
@@ -53,8 +51,6 @@
 			A.power_change()
 
 /proc/power_restore_quick()
-
-	priority_announce("All SMESs on [station_name()] have been recharged. We apologize for the inconvenience.", "Power Systems Nominal", ANNOUNCER_POWERON)
 	for(var/obj/machinery/power/smes/S in GLOB.machines)
 		if(!is_station_level(S.z))
 			continue
