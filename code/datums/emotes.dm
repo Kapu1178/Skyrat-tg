@@ -106,7 +106,8 @@
 	if(!msg)
 		return
 
-	user.log_message(msg, LOG_EMOTE)
+	if(user.ckey)
+		user.log_message(msg, LOG_EMOTE)
 	// SKYRAT EDIT START - Better emotes - Original: var/dchatmsg = "<b>[user]</b> [msg]"
 	var/space = should_have_space_before_emote(html_decode(msg)[1]) ? " " : ""
 	var/dchatmsg = "<b>[user]</b>[space][msg]"
@@ -322,7 +323,8 @@
 	if(!text)
 		CRASH("Someone passed nothing to manual_emote(), fix it")
 
-	log_message(text, LOG_EMOTE)
+	if(ckey)
+		log_message(text, LOG_EMOTE)
 
 	var/ghost_text = "<b>[src]</b> [text]"
 

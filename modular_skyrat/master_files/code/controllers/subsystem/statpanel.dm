@@ -14,9 +14,6 @@ SUBSYSTEM_DEF(statpanels)
 		var/datum/map_config/cached = SSmapping.next_map_config
 		var/round_time = world.time - SSticker.round_start_time
 		var/real_round_time = world.timeofday - SSticker.real_round_start_time
-		var/offset = GLOB.timezoneOffset
-		to_chat(world, "Offset: [offset]")
-		to_chat(world, "[time2text(world.timeofday - SSticker.real_round_start_time, "hh:mm:ss")]")
 		var/list/global_data = list(
 			"Time Dilation: [round(SStime_track.time_dilation_current,1)]% AVG:([round(SStime_track.time_dilation_avg_fast,1)]%, [round(SStime_track.time_dilation_avg,1)]%, [round(SStime_track.time_dilation_avg_slow,1)]%)",
 			"Map: [SSmapping.config?.map_name || "Loading..."]",
