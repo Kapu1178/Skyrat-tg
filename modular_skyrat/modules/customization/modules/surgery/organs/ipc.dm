@@ -87,9 +87,28 @@
 	taste_sensitivity = 25 // not as good as an organic tongue
 	maxHealth = 100 //RoboTongue!
 	organ_flags = ORGAN_SYNTHETIC
+	var/datum/action/innate/synthesize_chems/chemmaker
+
+/obj/item/organ/tongue/robot_ipc/Initialize(mapload)
+	. = ..()
+	create_reagents(200)
 
 /obj/item/organ/tongue/robot_ipc/handle_speech(datum/source, list/speech_args)
 	speech_args[SPEECH_SPANS] |= SPAN_ROBOT
+
+/obj/item/organ/tongue/robot_ipc/Insert(mob/living/carbon/tongue_owner, special)
+	. = ..()
+	var/obj/effect/proc_holder/spell/targeted/sloppy_kiss/S = new(null)
+	S.saliva_holder = reagents
+	owner.AddSpell(S)
+	if(!chemmaker)
+		chemmaker = new(src)
+	chemmaker.Grant(owner)
+
+/obj/item/organ/tongue/robot_ipc/Remove(mob/living/carbon/tongue_owner, special)
+	owner.RemoveSpell(/obj/effect/proc_holder/spell/targeted/sloppy_kiss)
+	chemmaker.Remove(owner)
+	..()
 
 /obj/item/organ/eyes/robot_ipc
 	name = "robotic eyes"
