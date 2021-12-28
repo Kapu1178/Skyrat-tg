@@ -6,6 +6,11 @@
 	hitsound = 'sound/effects/attackblob.ogg'
 	desc = "For giving affectionate kisses."
 	item_flags = NOBLUDGEON
+	var/datum/action/innate/synthesize_chems/borg/chemmaker
+
+/obj/item/dogborg_tongue/Initialize(mapload)
+	. = ..()
+	create_reagents(200)
 
 /obj/item/dogborg_tongue/afterattack(atom/target, mob/user, proximity)
 	. = ..()

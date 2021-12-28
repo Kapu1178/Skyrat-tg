@@ -125,23 +125,31 @@
 	icon_state = "cyborg_upgrade3"
 
 /obj/item/borg/upgrade/affectionmodule/action(mob/living/silicon/robot/borg)
-    . = ..()
-    if(!.)
-        return
-    if(borg.hasAffection)
-        to_chat(usr, span_warning("This unit already has a affection module installed!"))
-        return FALSE
-    if(!(R_TRAIT_WIDE in borg.model.model_features))
-        to_chat(usr, span_warning("This unit's chassis does not support this module."))
-        return FALSE
+	. = ..()
+	if(!.)
+		return
+	if(borg.hasAffection)
+		to_chat(usr, span_warning("This unit already has a affection module installed!"))
+		return FALSE
+	if(!(R_TRAIT_WIDE in borg.model.model_features))
+		to_chat(usr, span_warning("This unit's chassis does not support this module."))
+		return FALSE
 
-    var/obj/item/dogborg_tongue/dogtongue = new /obj/item/dogborg_tongue(borg.model)
-    borg.model.basic_modules += dogtongue
-    borg.model.add_module(dogtongue, FALSE, TRUE)
-    var/obj/item/dogborg_nose/dognose = new /obj/item/dogborg_nose(borg.model)
-    borg.model.basic_modules += dognose
-    borg.model.add_module(dognose, FALSE, TRUE)
-    borg.hasAffection = TRUE
+	var/obj/item/dogborg_tongue/dogtongue = new /obj/item/dogborg_tongue(borg.model)
+	borg.model.basic_modules += dogtongue
+	borg.model.add_module(dogtongue, FALSE, TRUE)
+
+	var/obj/effect/proc_holder/spell/targeted/sloppy_kiss/S = new(null)
+	S.saliva_holder = dogtongue.reagents
+	borg.AddSpell(S)
+	if(!dogtongue.chemmaker)
+		dogtongue.chemmaker = new()
+	dogtongue.chemmaker.Grant(borg)
+
+	var/obj/item/dogborg_nose/dognose = new /obj/item/dogborg_nose(borg.model)
+	borg.model.basic_modules += dognose
+	borg.model.add_module(dognose, FALSE, TRUE)
+	borg.hasAffection = TRUE
 
 /obj/item/borg/upgrade/affectionmodule/deactivate(mob/living/silicon/robot/borg, user = usr)
 	. = ..()
@@ -150,8 +158,12 @@
 	borg.hasAffection = FALSE
 	for(var/obj/item/dogborg_tongue/dogtongue in borg.model.modules)
 		borg.model.remove_module(dogtongue, TRUE)
+		dogtongue.chemmaker.Remove(borg)
 	for(var/obj/item/dogborg_nose/dognose in borg.model.modules)
 		borg.model.remove_module(dognose, TRUE)
+
+	borg.RemoveSpell(/obj/effect/proc_holder/spell/targeted/sloppy_kiss)
+
 
 /////////////////////////////////////////////
 /// Advanced Engineering Cyborg Materials ///

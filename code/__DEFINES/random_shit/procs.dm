@@ -41,9 +41,16 @@
 	amount_to_transfer = clamp(amount_to_transfer, 0, saliva_holder.total_volume)
 	if(!amount_to_transfer)
 		return
+
 	for(var/mob/living/M in targets)
-		user.visible_message(span_hypnophrase("[user.name] engages in a sloppy kiss with [M.name]!"), span_hypnophrase("You sloppily kiss [M.name], leaving some saliva in their mouth."))
+		user.visible_message(span_hypnophrase("[user.name] thrusts their tongue into [M.name]'s mouth, engaging in a sloppy kiss!"), span_hypnophrase("You sloppily kiss [M.name], leaving some saliva in their mouth."))
 		saliva_holder.trans_to(target = M, amount = amount_to_transfer, methods = INGEST)
+
+	if(saliva_holder.total_volume)
+		to_chat(user, span_notice("Your saliva now contains:\n"))
+		for(var/datum/reagent/reagent in saliva_holder.reagent_list)
+			to_chat(user, span_notice("[reagent.volume]u of [reagent.name]\n"))
+		to_chat(user, span_notice("([saliva_holder.total_volume]/[saliva_holder.maximum_volume])"))
 
 /datum/action/innate/synthesize_chems
 	name = "Synthesize Saliva"
@@ -75,3 +82,24 @@
 	if(chosen_id)
 		var/amount = input(owner, "Choose the amount to add.", "Choose the amount.", reagent_holder.maximum_volume) as num|null
 		reagent_holder.add_reagent(chosen_id, amount)
+
+	if(reagent_holder.total_volume)
+		to_chat(owner, span_notice("Your saliva now contains:\n"))
+		for(var/datum/reagent/reagent in reagent_holder.reagent_list)
+			to_chat(owner, span_notice("[reagent.volume]u of [reagent.name]\n"))
+		to_chat(owner, span_notice("([reagent_holder.total_volume]/[reagent_holder.maximum_volume])"))
+
+////CURSED DOGBORG SHIT - YOU KNOW WHO YOU ARE, FUCK YOU.
+/datum/action/innate/synthesize_chems/borg
+	name = "Synthesize Saliva"
+	icon_icon = 'icons/obj/drinks.dmi'
+	button_icon_state = "changelingsting"
+	background_icon_state = "bg_changeling"
+
+/datum/action/innate/synthesize_chems/borg/Grant()
+	. = ..()
+	if(iscyborg(owner))
+		var/mob/living/silicon/robot/borg = owner
+		var/obj/item/dogborg_tongue/tongue = locate() in borg.model.basic_modules
+		reagent_holder = tongue.reagents
+
