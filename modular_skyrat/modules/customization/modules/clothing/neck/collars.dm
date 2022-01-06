@@ -1,18 +1,6 @@
 /datum/component/storage/concrete/pockets/small/collar
 	max_items = 1
 
-/datum/component/storage/concrete/pockets/small/collar/Initialize()
-	. = ..()
-	can_hold = typecacheof(list(
-	/obj/item/food/cookie,
-	/obj/item/food/cookie/sugar))
-
-/datum/component/storage/concrete/pockets/small/collar/locked/Initialize()
-	. = ..()
-	can_hold = typecacheof(list(
-	/obj/item/food/cookie,
-	/obj/item/food/cookie/sugar,
-	/obj/item/key/collar))
 
 /obj/item/clothing/neck/human_petcollar
 	icon = 'modular_skyrat/master_files/icons/obj/clothing/neck.dmi'
@@ -55,7 +43,7 @@
 /obj/item/clothing/neck/human_petcollar/locked
 	name = "locked collar"
 	desc = "A collar that has a small lock on it to keep it from being removed."
-	pocket_storage_component_path = /datum/component/storage/concrete/pockets/small/collar/locked
+	pocket_storage_component_path = /datum/component/storage/concrete/pockets/small/collar
 	treat_path = /obj/item/key/collar
 	var/lock = FALSE
 

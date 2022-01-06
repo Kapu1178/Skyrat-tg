@@ -11,6 +11,7 @@
 	anchored = TRUE
 	pixel_x = -16
 	resistance_flags = FIRE_PROOF
+	light_color = "#ff6c00"
 	var/lit = FALSE
 
 	var/fuel_added = 0
@@ -101,8 +102,8 @@
 			set_light(3)
 		if(60000 to 79999) //SKYRAT EDIT original: if(1500 to 2000)
 			set_light(4)
-		if(800000 to MAXIMUM_BURN_TIMER) //SKYRAT EDIT original: if(2000 to MAXIMUM_BURN_TIMER)
-			set_light(6)
+		if(80000 to MAXIMUM_BURN_TIMER) //SKYRAT EDIT original: if(2000 to MAXIMUM_BURN_TIMER)
+			set_light(5)
 
 /obj/structure/fireplace/process(delta_time)
 	if(!lit)

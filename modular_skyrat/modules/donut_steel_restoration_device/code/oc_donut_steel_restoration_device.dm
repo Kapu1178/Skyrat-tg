@@ -27,7 +27,7 @@
 	density = TRUE
 	var/processing = FALSE
 	var/breakout_time = 10 SECONDS
-	var/processing_time = 1 MINUTES
+	var/processing_time = 1 SECONDS
 	var/next_fact = 10
 	var/static/list/advertisements = list(\
 	"Thank you for using the Self-Actualization Device, brought to you by Cinco: A Family Company!", \
