@@ -261,7 +261,7 @@
 
 		if(H.pain > H.pain_limit)
 			temp_arousal -= 0.1
-		if(H.arousal >= AROUS_SYS_STRONG && H.stat != DEAD)
+		/*if(H.arousal >= AROUS_SYS_STRONG && H.stat != DEAD)
 			if(prob(0.8))
 				H.emote(pick("moan","blush"))
 			temp_pleasure += 0.1
@@ -270,6 +270,7 @@
 			if(prob(0.8))
 				H.emote(pick("moan","twitch_s"))
 			//moan x2
+			*/
 
 	H.adjustArousal(temp_arousal)
 	H.adjustPleasure(temp_pleasure)
