@@ -633,7 +633,7 @@ GLOBAL_LIST_INIT(transit_tube_recipes, list(
 
 						if(queued_p_flipped)
 							tube.setDir(turn(queued_p_dir, 45))
-							tube.simple_rotate_flip()
+							tube.SimpleRotateFlip()
 
 						tube.add_fingerprint(usr)
 						if(mode & WRENCH_MODE)
