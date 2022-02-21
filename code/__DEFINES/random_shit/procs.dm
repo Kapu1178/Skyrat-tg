@@ -33,8 +33,9 @@
 	include_user = 0
 
 
-/obj/effect/proc_holder/spell/targeted/sloppy_kiss/on_gain(mob/living/user)
+/obj/effect/proc_holder/spell/targeted/sloppy_kiss/on_lose(mob/living/user)
 	. = ..()
+	saliva_holder = null
 
 /obj/effect/proc_holder/spell/targeted/sloppy_kiss/cast(list/targets, mob/living/carbon/human/user = usr)
 	var/amount_to_transfer = input(user, "How much of your saliva do you wish to transfer?","Enter transfer amount", 10) as num|null
@@ -65,6 +66,10 @@
 		var/mob/living/carbon/human/H = owner
 		var/obj/item/organ/tongue/robot_ipc/tongue = H.getorganslot(ORGAN_SLOT_TONGUE)
 		reagent_holder = tongue.reagents
+
+/datum/action/innate/synthesize_chems/Remove()
+	. = ..()
+	reagent_holder = null
 
 /datum/action/innate/synthesize_chems/Activate()
 	var/valid_id
