@@ -108,6 +108,7 @@
 /obj/item/organ/tongue/robot_ipc/Remove(mob/living/carbon/tongue_owner, special)
 	owner.RemoveSpell(/obj/effect/proc_holder/spell/targeted/sloppy_kiss)
 	chemmaker.Remove(owner)
+	QDEL_NULL(chemmaker)
 	..()
 
 /obj/item/organ/eyes/robot_ipc
