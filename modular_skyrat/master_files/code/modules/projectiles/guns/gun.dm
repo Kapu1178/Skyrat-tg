@@ -135,7 +135,7 @@
 	if(fire_select_modes.len > 1)
 		firemode_action = new(src)
 		firemode_action.button_icon_state = "fireselect_[fire_select]"
-		firemode_action.UpdateButtonIcon()
+		firemode_action.UpdateButtons()
 
 /obj/item/gun/ComponentInitialize()
 	. = ..()
@@ -244,7 +244,7 @@
 	playsound(user, 'sound/weapons/empty.ogg', 100, TRUE)
 	update_appearance()
 	firemode_action.button_icon_state = "fireselect_[fire_select]"
-	firemode_action.UpdateButtonIcon()
+	firemode_action.UpdateButtons()
 	SEND_SIGNAL(src, COMSIG_UPDATE_AMMO_HUD)
 	return TRUE
 
@@ -397,7 +397,7 @@
 	else
 		safety = !safety
 	tsafety.button_icon_state = "safety_[safety ? "on" : "off"]"
-	tsafety.UpdateButtonIcon()
+	tsafety.UpdateButtons()
 	playsound(src, 'sound/weapons/empty.ogg', 100, TRUE)
 	user.visible_message(span_notice("[user] toggles [src]'s safety [safety ? "<font color='#00ff15'>ON</font>" : "<font color='#ff0000'>OFF</font>"]."),
 	span_notice("You toggle [src]'s safety [safety ? "<font color='#00ff15'>ON</font>" : "<font color='#ff0000'>OFF</font>"]."))
@@ -573,8 +573,10 @@
 		return
 	if((can_flashlight && gun_light) && (can_bayonet && bayonet)) //give them a choice instead of removing both
 		var/list/possible_items = list(gun_light, bayonet)
-		var/obj/item/item_to_remove = input(user, "Select an attachment to remove", "Attachment Removal") as null|obj in sort_names(possible_items)
-		if(!item_to_remove || !user.canUseTopic(src, BE_CLOSE, FALSE, NO_TK))
+		var/obj/item/item_to_remove = tgui_input_list(user, "Attachment to remove", "Attachment Removal", sort_names(possible_items))
+		if(isnull(item_to_remove))
+			return
+		if(user.canUseTopic(src, BE_CLOSE, FALSE, NO_TK))
 			return
 		return remove_gun_attachment(user, tool, item_to_remove)
 
@@ -808,7 +810,7 @@
 	button_icon_state = "sniper_zoom"
 	var/obj/item/gun/gun = null
 
-/datum/action/toggle_scope_zoom/Trigger()
+/datum/action/toggle_scope_zoom/Trigger(trigger_flags)
 	. = ..()
 	if(!.)
 		return

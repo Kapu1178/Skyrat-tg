@@ -9,6 +9,7 @@
 
 	///Unremovable is until the features are completely finished
 	organ_flags = ORGAN_UNREMOVABLE | ORGAN_EDIBLE
+	visual = TRUE
 
 	///Sometimes we need multiple layers, for like the back, middle and front of the person
 	var/layers
@@ -119,6 +120,10 @@
 			return "_ADJ"
 		if(BODY_FRONT_LAYER)
 			return "_FRONT"
+		//SKYRAT EDIT ADDITION BEGIN
+		if(BODY_FRONT_UNDER_CLOTHES)
+			return "_FRONT"
+		//SKYRAT EDIT ADDITION END
 
 ///Converts a bitflag to the right layer. I'd love to make this a static index list, but byond made an attempt on my life when i did
 /obj/item/organ/external/proc/bitflag_to_layer(layer)
@@ -261,3 +266,22 @@
 	if(burnt)
 		burnt = FALSE
 		set_sprite(original_sprite)
+
+//podperson hair
+/obj/item/organ/external/pod_hair
+	zone = BODY_ZONE_HEAD
+	slot = ORGAN_SLOT_EXTERNAL_POD_HAIR
+	layers = EXTERNAL_FRONT|EXTERNAL_ADJACENT
+
+	feature_key = "pod_hair"
+	preference = "feature_pod_hair"
+
+	dna_block = DNA_POD_HAIR_BLOCK
+
+/obj/item/organ/external/pod_hair/can_draw_on_bodypart(mob/living/carbon/human/human)
+	if(!(human.head?.flags_inv & HIDEHAIR) || (human.wear_mask?.flags_inv & HIDEHAIR))
+		return TRUE
+	return FALSE
+
+/obj/item/organ/external/pod_hair/get_global_feature_list()
+	return GLOB.pod_hair_list

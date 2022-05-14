@@ -1,6 +1,7 @@
 /datum/job/expeditionary_trooper
-	title = "Vanguard Operative"
-	department_head = list("Captain")
+	title = JOB_VANGUARD_OPERATIVE
+	description = "Explore gateways, watch your friends die, find all the loot."
+	department_head = list(JOB_CAPTAIN)
 	faction = FACTION_STATION
 	total_positions = 4
 	spawn_positions = 4
@@ -60,7 +61,8 @@
 
 /obj/effect/landmark/start/expeditionary_corps
 	name = "Vanguard Operative"
-	icon_state = "Security Officer"
+	icon_state = "Vanguard Operative"
+	icon = 'modular_skyrat/master_files/icons/mob/landmarks.dmi'
 
 /obj/item/pda/expeditionary_corps
 	greyscale_colors = "#891417#000099"
@@ -123,9 +125,8 @@
 
 //base, don't use this, but leaving it for admin spawns is probably a good call?
 /obj/structure/closet/crate/secure/exp_corps/PopulateContents()
-	new /obj/item/storage/firstaid/tactical(src)
+	new /obj/item/storage/medkit/tactical(src)
 	new /obj/item/storage/box/expeditionary_survival(src)
-	new /obj/item/clothing/suit/space/hardsuit/expeditionary_corps(src)
 	new /obj/item/radio(src)
 	new /obj/item/melee/tomahawk(src)
 	new /obj/item/clothing/gloves/color/black/expeditionary_corps(src)
@@ -136,9 +137,8 @@
 
 //shield guy
 /obj/structure/closet/crate/secure/exp_corps/pointman/PopulateContents()
-	new /obj/item/storage/firstaid/regular(src)
+	new /obj/item/storage/medkit/regular(src)
 	new /obj/item/storage/box/expeditionary_survival(src)
-	new /obj/item/clothing/suit/space/hardsuit/expeditionary_corps(src)
 	new /obj/item/radio(src)
 	new /obj/item/melee/tomahawk(src)
 	new /obj/item/clothing/gloves/color/black/expeditionary_corps(src)
@@ -150,9 +150,8 @@
 
 //medic
 /obj/structure/closet/crate/secure/exp_corps/field_medic/PopulateContents()
-	new /obj/item/storage/firstaid/expeditionary(src)
+	new /obj/item/storage/medkit/expeditionary(src)
 	new /obj/item/storage/box/expeditionary_survival(src)
-	new /obj/item/clothing/suit/space/hardsuit/expeditionary_corps(src)
 	new /obj/item/radio(src)
 	new /obj/item/clothing/gloves/color/latex/nitrile/expeditionary_corps(src)
 	new /obj/item/clothing/head/helmet/expeditionary_corps(src)
@@ -163,9 +162,8 @@
 
 //engineer gaming
 /obj/structure/closet/crate/secure/exp_corps/combat_tech/PopulateContents()
-	new /obj/item/storage/firstaid/emergency(src)
+	new /obj/item/storage/medkit/emergency(src)
 	new /obj/item/storage/box/expeditionary_survival(src)
-	new /obj/item/clothing/suit/space/hardsuit/expeditionary_corps(src)
 	new /obj/item/radio(src)
 	new /obj/item/melee/tomahawk(src)
 	new /obj/item/clothing/gloves/color/chief_engineer/expeditionary_corps(src)
@@ -176,11 +174,10 @@
 	new /obj/item/skillchip/job/engineer(src)
 	new /obj/item/storage/bag/material(src)
 
-//edgy loner with knives
+//edgy loner with knives AND A FUKKEN gun
 /obj/structure/closet/crate/secure/exp_corps/marksman/PopulateContents()
-	new /obj/item/storage/firstaid/regular(src)
+	new /obj/item/storage/medkit/regular(src)
 	new /obj/item/storage/box/expeditionary_survival(src)
-	new /obj/item/clothing/suit/space/hardsuit/expeditionary_corps(src)
 	new /obj/item/radio(src)
 	new /obj/item/storage/bag/ammo/marksman(src)
 	new /obj/item/clothing/gloves/color/black/expeditionary_corps(src)
@@ -188,3 +185,4 @@
 	new /obj/item/clothing/suit/armor/vest/expeditionary_corps(src)
 	new /obj/item/storage/belt/military/expeditionary_corps/marksman(src)
 	new /obj/item/storage/backpack/duffelbag/expeditionary_corps(src)
+	new /obj/item/storage/box/gunset/ladon(src)

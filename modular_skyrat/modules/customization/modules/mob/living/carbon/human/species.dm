@@ -62,6 +62,7 @@ GLOBAL_LIST_EMPTY(customizable_races)
 		H.remove_overlay(BODY_BEHIND_LAYER)
 		H.remove_overlay(BODY_ADJ_LAYER)
 		H.remove_overlay(BODY_FRONT_LAYER)
+		H.remove_overlay(BODY_FRONT_UNDER_CLOTHES)
 		return
 
 	var/list/bodyparts_to_add = list()
@@ -90,6 +91,7 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	H.remove_overlay(BODY_BEHIND_LAYER)
 	H.remove_overlay(BODY_ADJ_LAYER)
 	H.remove_overlay(BODY_FRONT_LAYER)
+	H.remove_overlay(BODY_FRONT_UNDER_CLOTHES)
 
 	var/g = (H.body_type == FEMALE) ? "f" : "m"
 	for(var/bodypart in bodyparts_to_add)
@@ -275,6 +277,7 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	H.apply_overlay(BODY_BEHIND_LAYER)
 	H.apply_overlay(BODY_ADJ_LAYER)
 	H.apply_overlay(BODY_FRONT_LAYER)
+	H.apply_overlay(BODY_FRONT_UNDER_CLOTHES)
 
 /datum/species
 	///What accessories can a species have aswell as their default accessory of such type e.g. "frills" = "Aquatic". Default accessory colors is dictated by the accessory properties and mutcolors of the specie
@@ -299,10 +302,6 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	mutant_bodyparts = list()
 	default_mutant_bodyparts = list("tail" = "Cat", "ears" = "Cat")
 	learnable_languages = list(/datum/language/common, /datum/language/nekomimetic)
-
-/datum/species/human/monkey
-	mutant_bodyparts = list()
-	default_mutant_bodyparts = list("tail" = "Monkey")
 
 /datum/species/human
 	mutant_bodyparts = list()
@@ -405,6 +404,16 @@ GLOBAL_LIST_EMPTY(customizable_races)
 				C.dropItemToGround(I)
 			else	//Entries in the list should only ever be items or null, so if it's not an item, we can assume it's an empty hand
 				INVOKE_ASYNC(C, /mob/living/carbon.proc/put_in_hands, new mutanthands())
+
+	if(ishuman(C))
+		var/mob/living/carbon/human/human = C
+		for(var/obj/item/organ/external/organ_path as anything in external_organs)
+			//Load a persons preferences from DNA
+			var/feature_key_name = human.dna.features[initial(organ_path.feature_key)]
+
+			var/obj/item/organ/external/new_organ = SSwardrobe.provide_type(organ_path)
+			new_organ.set_sprite(feature_key_name)
+			new_organ.Insert(human)
 
 	for(var/X in inherent_traits)
 		ADD_TRAIT(C, X, SPECIES_TRAIT)

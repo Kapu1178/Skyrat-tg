@@ -49,16 +49,17 @@
 	icon_state = "random_shotgun"
 	gun_count = 4
 	guns = list(
-		/obj/item/gun/ballistic/shotgun/m23,
-		/obj/item/gun/ballistic/shotgun/automatic/as2,
-		/obj/item/gun/ballistic/shotgun/sas14,
+		/obj/item/gun/ballistic/shotgun/riot,
+		/obj/item/gun/ballistic/shotgun/riot,
+		/obj/item/gun/ballistic/shotgun/riot,
+		/obj/item/gun/ballistic/shotgun/riot,
 	)
 
 /obj/structure/closet/ammunitionlocker/useful/PopulateContents()
-	new /obj/item/storage/box/rubbershot_14gauge(src)
-	new /obj/item/storage/box/rubbershot_14gauge(src)
-	new /obj/item/storage/box/rubbershot_14gauge(src)
-	new /obj/item/storage/box/rubbershot_14gauge(src)
+	new /obj/item/storage/box/rubbershot(src)
+	new /obj/item/storage/box/rubbershot(src)
+	new /obj/item/storage/box/rubbershot(src)
+	new /obj/item/storage/box/rubbershot(src)
 
 //////////////////////////AMMO BOXES
 /obj/item/storage/box/ammo_box
@@ -72,6 +73,8 @@
 /obj/item/storage/box/ammo_box/microfusion
 	name = "microfusion cell container"
 	desc = "A box filled with microfusion cells."
+	icon = 'modular_skyrat/modules/microfusion/icons/microfusion_cells.dmi'
+	icon_state = "microfusion_box"
 
 /obj/item/storage/box/ammo_box/microfusion/PopulateContents()
 	new /obj/item/storage/bag/ammo(src)
@@ -82,7 +85,7 @@
 	gun_count = 2
 	guns = list(
 		/obj/item/gun/ballistic/automatic/ar,
-		/obj/item/gun/ballistic/automatic/assault_rifle/m16,
+		/obj/item/gun/ballistic/automatic/m16,
 		/obj/item/gun/ballistic/automatic/cfa_rifle,
 	)
 

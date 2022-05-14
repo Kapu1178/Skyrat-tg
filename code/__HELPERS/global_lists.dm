@@ -52,6 +52,8 @@
 	sort_list(GLOB.laugh_types, /proc/cmp_typepaths_asc)
 	//SKYRAT EDIT END
 
+	init_sprite_accessory_subtypes(/datum/sprite_accessory/pod_hair, GLOB.pod_hair_list)
+
 	//Species
 	for(var/spath in subtypesof(/datum/species))
 		var/datum/species/S = new spath()
@@ -78,8 +80,6 @@
 
 	make_skyrat_datum_references() //SKYRAT EDIT ADDITION - CUSTOMIZATION
 	init_crafting_recipes(GLOB.crafting_recipes)
-
-	init_subtypes_w_path_keys(/obj/projectile, GLOB.proj_by_path_key)
 
 /// Inits the crafting recipe list, sorting crafting recipe requirements in the process.
 /proc/init_crafting_recipes(list/crafting_recipes)
@@ -123,11 +123,11 @@ GLOBAL_LIST_INIT(WALLITEMS_INTERIOR, typecacheof(list(
 	/obj/item/radio/intercom,
 	/obj/item/storage/secure/safe,
 	/obj/machinery/airalarm,
-	/obj/machinery/bounty_board,
+	/obj/machinery/bluespace_vendor,
+	/obj/machinery/newscaster,
 	/obj/machinery/button,
 	/obj/machinery/computer/security/telescreen,
 	/obj/machinery/computer/security/telescreen/entertainment,
-	/obj/machinery/bluespace_vendor,
 	/obj/machinery/defibrillator_mount,
 	/obj/machinery/door_timer,
 	/obj/machinery/embedded_controller/radio/simple_vent_controller,
@@ -147,7 +147,10 @@ GLOBAL_LIST_INIT(WALLITEMS_INTERIOR, typecacheof(list(
 	/obj/structure/noticeboard,
 	/obj/structure/reagent_dispensers/wall,
 	/obj/structure/sign,
-	/obj/structure/sign/picture_frame
+	/obj/structure/sign/picture_frame,
+	/obj/structure/sign/poster/random,
+	/obj/structure/sign/poster/contraband/random,
+	/obj/structure/sign/poster/official/random,
 	)))
 
 // Wall mounted machinery which are visually coming out of the wall.

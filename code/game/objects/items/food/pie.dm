@@ -44,8 +44,8 @@
 /obj/item/food/pie/cream/proc/splat(atom/movable/hit_atom)
 	if(isliving(loc)) //someone caught us!
 		return
-	var/turf/T = get_turf(hit_atom)
-	new/obj/effect/decal/cleanable/food/pie_smudge(T)
+	var/turf/hit_turf = get_turf(hit_atom)
+	new/obj/effect/decal/cleanable/food/pie_smudge(hit_turf)
 	if(reagents?.total_volume)
 		reagents.expose(hit_atom, TOUCH)
 	if(isliving(hit_atom))
@@ -55,7 +55,7 @@
 			living_target_getting_hit.StaminaKnockdown(10, TRUE) //SKYRAT EDIT CHANGE - COMBAT
 		living_target_getting_hit.adjust_blurriness(1)
 		living_target_getting_hit.visible_message(span_warning("[living_target_getting_hit] is creamed by [src]!"), span_userdanger("You've been creamed by [src]!"))
-		playsound(living_target_getting_hit, "desecration", 50, TRUE)
+		playsound(living_target_getting_hit, SFX_DESECRATION, 50, TRUE)
 	if(is_type_in_typecache(hit_atom, GLOB.creamable))
 		hit_atom.AddComponent(/datum/component/creamed, src)
 	qdel(src)

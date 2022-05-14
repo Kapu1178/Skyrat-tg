@@ -14,7 +14,7 @@
 	health = 25
 	maxHealth = 25
 
-	bot_core = /obj/machinery/bot_core/firebot
+	maints_access_required = list(ACCESS_ROBOTICS, ACCESS_CONSTRUCTION)
 	radio_key = /obj/item/encryptionkey/headset_eng
 	radio_channel = RADIO_CHANNEL_ENGINEERING
 	bot_type = FIRE_BOT
@@ -107,7 +107,7 @@
 	if(user)
 		to_chat(user, span_danger("[src] buzzes and beeps."))
 	audible_message(span_danger("[src] buzzes oddly!"))
-	playsound(src, "sparks", 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+	playsound(src, SFX_SPARKS, 75, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
 	if(user)
 		old_target_fire = user
 	extinguish_fires = FALSE
@@ -135,6 +135,7 @@
 	. = ..()
 	if(. || (bot_cover_flags & BOT_COVER_LOCKED && !usr.has_unlimited_silicon_privilege))
 		return
+
 	switch(action)
 		if("extinguish_fires")
 			extinguish_fires = !extinguish_fires
@@ -143,7 +144,6 @@
 		if("stationary_mode")
 			stationary_mode = !stationary_mode
 			update_appearance()
-	return
 
 /mob/living/simple_animal/bot/firebot/proc/is_burning(atom/target)
 	if(ismob(target))
@@ -239,11 +239,11 @@
 		frustration++
 
 	if(bot_mode_flags & BOT_MODE_AUTOPATROL && !target_fire)
-		if(mode == BOT_IDLE || mode == BOT_START_PATROL)
-			start_patrol()
-
-		if(mode == BOT_PATROL)
-			bot_patrol()
+		switch(mode)
+			if(BOT_IDLE, BOT_START_PATROL)
+				start_patrol()
+			if(BOT_PATROL)
+				bot_patrol()
 
 
 //Look for burning people or turfs around the bot
@@ -289,9 +289,6 @@
 
 
 /mob/living/simple_animal/bot/firebot/explode()
-	bot_mode_flags &= ~BOT_MODE_ON
-	visible_message(span_boldannounce("[src] blows apart!"))
-
 	var/atom/Tsec = drop_location()
 
 	new /obj/item/assembly/prox_sensor(Tsec)
@@ -302,12 +299,7 @@
 	if(isopenturf(T))
 		var/turf/open/theturf = T
 		theturf.MakeSlippery(TURF_WET_WATER, min_wet_time = 10 SECONDS, wet_time_to_add = 5 SECONDS)
-
-	do_sparks(3, TRUE, src)
-	..()
-
-/obj/machinery/bot_core/firebot
-	req_one_access = list(ACCESS_CONSTRUCTION, ACCESS_ROBOTICS)
+	return ..()
 
 #undef SPEECH_INTERVAL
 #undef DETECTED_VOICE_INTERVAL

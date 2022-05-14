@@ -13,7 +13,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	density = FALSE
 	see_invisible = SEE_INVISIBLE_OBSERVER
 	see_in_dark = 100
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 	invisibility = INVISIBILITY_OBSERVER
 	hud_type = /datum/hud/ghost
 	movement_type = GROUND | FLYING
@@ -118,7 +118,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 
 	if(!T || is_secret_level(T.z))
 		var/list/turfs = get_area_turfs(/area/shuttle/arrival)
-		if(turfs.len)
+		if(length(turfs))
 			T = pick(turfs)
 		else
 			T = SSmapping.get_station_center()
@@ -133,7 +133,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 		remove_verb(src, /mob/dead/observer/verb/boo)
 		remove_verb(src, /mob/dead/observer/verb/possess)
 
-	animate(src, pixel_y = 2, time = 10, loop = -1)
+	AddElement(/datum/element/movetype_handler)
 
 	add_to_dead_mob_list()
 
@@ -150,6 +150,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	data_huds_on = 1
 
 	SSpoints_of_interest.make_point_of_interest(src)
+	ADD_TRAIT(src, TRAIT_HEAR_THROUGH_DARKNESS, ref(src))
 
 /mob/dead/observer/get_photo_description(obj/item/camera/camera)
 	if(!invisibility || camera.see_ghosts)
@@ -318,7 +319,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		ghostize(TRUE) // Can return with TRUE
 		return TRUE
 	// SKYRAT EDIT ADDITION END
-	var/response = tgui_alert(usr, "Are you -sure- you want to ghost?\n(You are alive. If you ghost whilst still alive you may not play again this round! You can't change your mind so choose wisely!!)","Are you sure you want to ghost?",list("Ghost","Stay in body"))
+	var/response = tgui_alert(usr, "Are you sure you want to ghost? If you ghost whilst still alive you cannot re-enter your body!", "Confirm Ghost Observe", list("Ghost", "Stay in Body"))
 	if(response != "Ghost")
 		return FALSE//didn't want to ghost after-all
 	ghostize(FALSE) // FALSE parameter is so we can never re-enter our body. U ded.
@@ -329,7 +330,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	set name = "Ghost"
 	set desc = "Relinquish your life and enter the land of the dead."
 
-	var/response = tgui_alert(usr, "Are you -sure- you want to ghost?\n(You are alive. If you ghost whilst still alive you may not play again this round! You can't change your mind so choose wisely!!)","Are you sure you want to ghost?",list("Ghost","Stay in body"))
+	var/response = tgui_alert(usr, "Are you sure you want to ghost? If you ghost whilst still alive you cannot re-enter your body!", "Confirm Ghost Observe", list("Ghost", "Stay in Body"))
 	if(response != "Ghost")
 		return
 	ghostize(FALSE)
@@ -372,7 +373,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	if(!mind || QDELETED(mind.current))
 		to_chat(src, span_warning("You have no body."))
 		return
-	if(!can_reenter_corpse)
+	if(!can_reenter_corpse && !mind.has_antag_datum(/datum/antagonist/changeling)) //SKYRAT EDIT
 		to_chat(src, span_warning("You cannot re-enter your body."))
 		return
 	if(mind.current.key && mind.current.key[1] != "@") //makes sure we don't accidentally kick any clients
@@ -395,7 +396,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		to_chat(usr, span_warning("You're already stuck out of your body!"))
 		return FALSE
 
-	var/response = tgui_alert(usr, "Are you sure you want to prevent (almost) all means of resuscitation? This cannot be undone. ","Are you sure you want to stay dead?",list("DNR","Save Me"))
+	var/response = tgui_alert(usr, "Are you sure you want to prevent (almost) all means of resuscitation? This cannot be undone.", "Are you sure you want to stay dead?", list("DNR","Save Me"))
 	if(response != "DNR")
 		return
 
@@ -446,16 +447,19 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		var/area/A = V
 		if(!(A.area_flags & HIDDEN_AREA))
 			filtered += A
-	var/area/thearea = input("Area to jump to", "BOOYEA") as null|anything in filtered
+	var/area/thearea = tgui_input_list(usr, "Area to jump to", "BOOYEA", filtered)
 
-	if(!thearea)
+	if(isnull(thearea))
+		return
+	if(!isobserver(usr))
+		to_chat(usr, span_warning("Not when you're not dead!"))
 		return
 
 	var/list/L = list()
 	for(var/turf/T in get_area_turfs(thearea.type))
 		L+=T
 
-	if(!L || !L.len)
+	if(!L || !length(L))
 		to_chat(usr, span_warning("No area available."))
 		return
 
@@ -503,7 +507,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	. = ..()
 	//restart our floating animation after orbit is done.
 	pixel_y = base_pixel_y
-	animate(src, pixel_y = base_pixel_y + 2, time = 1 SECONDS, loop = -1)
 
 /mob/dead/observer/verb/jumptomob() //Moves the ghost instead of just changing the ghosts's eye -Nodrak
 	set category = "Ghost"
@@ -516,9 +519,10 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	var/list/possible_destinations = SSpoints_of_interest.get_mob_pois()
 	var/target = null
 
-	target = input("Please, select a player!", "Jump to Mob", null, null) as null|anything in possible_destinations
-
-	if (!target || !isobserver(usr))
+	target = tgui_input_list(usr, "Please, select a player!", "Jump to Mob", possible_destinations)
+	if(isnull(target))
+		return
+	if (!isobserver(usr))
 		return
 
 	var/mob/destination_mob = possible_destinations[target] //Destination mob
@@ -550,7 +554,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		var/list/views = list()
 		for(var/i in 7 to max_view)
 			views |= i
-		var/new_view = input("Choose your new view", "Modify view range", 0) as null|anything in views
+		var/new_view = tgui_input_list(usr, "New view", "Modify view range", views)
 		if(new_view)
 			client.view_size.setTo(clamp(new_view, 7, max_view) - 7)
 	else
@@ -656,7 +660,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		if(!(L in GLOB.player_list) && !L.mind)
 			possessible += L
 
-	var/mob/living/target = input("Your new life begins today!", "Possess Mob", null, null) as null|anything in sort_names(possessible)
+	var/mob/living/target = tgui_input_list(usr, "Your new life begins today!", "Possess Mob", sort_names(possessible))
 
 	if(!target)
 		return FALSE
@@ -864,14 +868,15 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 
 /mob/dead/observer/proc/cleanup_observe()
+	if(isnull(observetarget))
+		return
 	var/mob/target = observetarget
 	observetarget = null
 	client?.perspective = initial(client.perspective)
 	sight = initial(sight)
-	UnregisterSignal(target, COMSIG_MOVABLE_Z_CHANGED)
-	if(target.observers)
-		target.observers -= src
-		UNSETEMPTY(target.observers)
+	if(target)
+		UnregisterSignal(target, COMSIG_MOVABLE_Z_CHANGED)
+		LAZYREMOVE(target.observers, src)
 
 /mob/dead/observer/verb/observe()
 	set name = "Observe"
@@ -885,9 +890,10 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	var/list/possible_destinations = SSpoints_of_interest.get_mob_pois()
 	var/target = null
 
-	target = input("Please, select a player!", "Jump to Mob", null, null) as null|anything in possible_destinations
-
-	if (!target || !isobserver(usr))
+	target = tgui_input_list(usr, "Please, select a player!", "Jump to Mob", possible_destinations)
+	if(isnull(target))
+		return
+	if (!isobserver(usr))
 		return
 
 	var/mob/chosen_target = possible_destinations[target]
@@ -913,8 +919,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		RegisterSignal(mob_eye, COMSIG_MOVABLE_Z_CHANGED, .proc/on_observing_z_changed)
 		if(mob_eye.hud_used)
 			client.screen = list()
-			LAZYINITLIST(mob_eye.observers)
-			mob_eye.observers |= src
+			LAZYOR(mob_eye.observers, src)
 			mob_eye.hud_used.show_hud(mob_eye.hud_used.hud_version, src)
 			observetarget = mob_eye
 
@@ -1039,8 +1044,14 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 			I.appearance = MA
 			t_ray_images += I
 	stored_t_ray_images += t_ray_images
-	if(t_ray_images.len)
+	if(length(t_ray_images))
 		if(t_ray_view)
 			client.images += t_ray_images
 		else
 			client.images -= stored_t_ray_images
+
+/mob/dead/observer/default_lighting_alpha()
+	var/datum/preferences/prefs = client?.prefs
+	if(!prefs || (client?.combo_hud_enabled && prefs.toggles & COMBOHUD_LIGHTING))
+		return ..()
+	return GLOB.ghost_lighting_options[prefs.read_preference(/datum/preference/choiced/ghost_lighting)]

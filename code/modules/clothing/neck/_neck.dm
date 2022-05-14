@@ -48,6 +48,11 @@
 	desc = "A loosely tied necktie, a perfect accessory for the over-worked detective."
 	icon_state = "detective"
 
+/obj/item/clothing/neck/maid
+	name = "maid neck cover"
+	desc = "A neckpiece for a maid costume, it smells faintly of disappointment."
+	icon_state = "maid_neck"
+
 /obj/item/clothing/neck/stethoscope
 	name = "stethoscope"
 	desc = "An outdated medical apparatus for listening to the sounds of the human body. It also makes you look like you know what you're doing."
@@ -184,7 +189,7 @@
 	return ..()
 
 /obj/item/clothing/neck/petcollar/attack_self(mob/user)
-	tagname = sanitize_name(stripped_input(user, "Would you like to change the name on the tag?", "Name your new pet", "Spot", MAX_NAME_LEN))
+	tagname = sanitize_name(tgui_input_text(user, "Would you like to change the name on the tag?", "Pet Naming", "Spot", MAX_NAME_LEN))
 	name = "[initial(name)] - [tagname]"
 
 //////////////
@@ -226,35 +231,6 @@
 	else
 		to_chat(user, span_warning("There is no export value for [I] or any items within it."))
 
-
-/obj/item/clothing/neck/neckerchief
-	icon = 'icons/obj/clothing/masks.dmi' //In order to reuse the bandana sprite
-	w_class = WEIGHT_CLASS_TINY
-	var/sourceBandanaType
-
-/obj/item/clothing/neck/neckerchief/worn_overlays(mutable_appearance/standing, isinhands)
-	. = ..()
-	if(!isinhands)
-		var/mutable_appearance/realOverlay = mutable_appearance('icons/mob/clothing/mask.dmi', icon_state)
-		realOverlay.pixel_y = -3
-		. += realOverlay
-
-/obj/item/clothing/neck/neckerchief/AltClick(mob/user)
-	. = ..()
-	if(iscarbon(user))
-		var/mob/living/carbon/C = user
-		if(C.get_item_by_slot(ITEM_SLOT_NECK) == src)
-			to_chat(user, span_warning("You can't untie [src] while wearing it!"))
-			return
-		if(user.is_holding(src))
-			var/obj/item/clothing/mask/bandana/newBand = new sourceBandanaType(user)
-			var/currentHandIndex = user.get_held_index_of_item(src)
-			var/oldName = src.name
-			qdel(src)
-			user.put_in_hand(newBand, currentHandIndex)
-			user.visible_message(span_notice("You untie [oldName] back into a [newBand.name]."), span_notice("[user] unties [oldName] back into a [newBand.name]."))
-		else
-			to_chat(user, span_warning("You must be holding [src] in order to untie it!"))
 
 /obj/item/clothing/neck/beads
 	name = "plastic bead necklace"

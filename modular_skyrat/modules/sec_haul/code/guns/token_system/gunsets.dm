@@ -33,13 +33,13 @@
 
 /obj/item/storage/box/gunset/AltClick(mob/user)
 	. = ..()
-	opened = TRUE
+	opened = !opened
 	update_icon()
 
 
 /obj/item/storage/box/gunset/attack_self(mob/user)
 	. = ..()
-	opened = TRUE
+	opened = !opened
 	update_icon()
 
 ///////////////////
@@ -263,13 +263,14 @@
 	new /obj/item/ammo_box/magazine/multi_sprite/g18(src)
 
 //HOP
-/obj/item/storage/box/gunset/pdh_hop
+/obj/item/storage/box/gunset/pdh
 	name = "pdh 'osprey' supply box"
 	w_class = WEIGHT_CLASS_NORMAL
+
 /obj/item/gun/ballistic/automatic/pistol/pdh/nomag
 	spawnwithmagazine = FALSE
 
-/obj/item/storage/box/gunset/pdh_hop/PopulateContents()
+/obj/item/storage/box/gunset/pdh/PopulateContents()
 	. = ..()
 	new /obj/item/gun/ballistic/automatic/pistol/pdh/nomag(src)
 	new /obj/item/ammo_box/magazine/multi_sprite/pdh(src)
@@ -352,21 +353,6 @@
 	new /obj/item/ammo_box/magazine/pepperball(src)
 	new /obj/item/ammo_box/magazine/pepperball(src)
 
-
-//Sergeants!//
-
-/obj/item/storage/box/gunset/sarge
-	name = "sergeant supply box"
-	w_class = WEIGHT_CLASS_NORMAL
-
-/obj/item/storage/box/gunset/sarge/PopulateContents()
-	new /obj/item/trim_token/security_sergeant(src)
-	new /obj/item/melee/baton/telescopic(src)
-	new /obj/item/clothing/under/rank/security/peacekeeper/sergeant(src)
-	new /obj/item/clothing/head/sec/peacekeeper/sergeant(src)
-	new /obj/item/armament_token/primary(src)
-	new /obj/item/megaphone/sec(src)
-	// . = ..()
 
 /////////////////
 //SHOTGUN GUNSETS

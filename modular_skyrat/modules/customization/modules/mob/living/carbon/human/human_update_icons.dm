@@ -49,7 +49,7 @@
 			if(STYLE_VOX)
 				icon_file = w_uniform.worn_icon_vox || 'modular_skyrat/master_files/icons/mob/clothing/species/vox/uniform.dmi'
 			if(STYLE_TESHARI)
-				icon_file = TESHARI_UNIFORM_ICON
+				icon_file = w_uniform.worn_icon_teshari || TESHARI_UNIFORM_ICON
 
 		if(applied_style & STYLE_TAUR_ALL)
 			x_override = 64
@@ -62,24 +62,27 @@
 		var/mutable_appearance/uniform_overlay
 
 		if(dna && dna.species.sexes && !applied_style)
-			if(body_type == FEMALE && U.fitted != NO_FEMALE_UNIFORM)
-				uniform_overlay = U.build_worn_icon(default_layer = UNIFORM_LAYER, default_icon_file = 'icons/mob/clothing/under/default.dmi', isinhands = FALSE, femaleuniform = U.fitted, override_state = target_overlay, override_icon = icon_file, override_x_center = x_override, mutant_styles = applied_style, species = dna.species.species_clothing_path)
+			if(body_type == FEMALE && U.female_sprite_flags != NO_FEMALE_UNIFORM)
+				uniform_overlay = U.build_worn_icon(default_layer = UNIFORM_LAYER, default_icon_file = 'icons/mob/clothing/under/default.dmi', isinhands = FALSE, femaleuniform = U.female_sprite_flags, override_state = target_overlay, override_icon = icon_file, override_x_center = x_override, mutant_styles = applied_style, species = dna.species.species_clothing_path)
 
 		if(!uniform_overlay)
 			uniform_overlay = U.build_worn_icon(default_layer = UNIFORM_LAYER, default_icon_file = 'icons/mob/clothing/under/default.dmi', isinhands = FALSE, override_state = target_overlay, override_icon = icon_file, override_x_center = x_override, mutant_styles = applied_style, species = dna.species.species_clothing_path)
 
 		if(U.accessory_overlay)
-			if(STYLE_TESHARI)
+			var/special_accessory_style = FALSE
+			if(applied_style == STYLE_TESHARI)
 				var/static/list/teshari_accessory_states = icon_states(TESHARI_ACCESSORIES_ICON)
 				if(U.accessory_overlay.icon_state in teshari_accessory_states)
 					U.accessory_overlay.icon = TESHARI_ACCESSORIES_ICON
+					special_accessory_style = TRUE
+			// Apply an offset only if we didn't apply a special accessory style.
+			if(!special_accessory_style && (OFFSET_ACCESSORY in dna.species.offset_features))
+				U.accessory_overlay.pixel_x = dna.species.offset_features[OFFSET_ACCESSORY][1]
+				U.accessory_overlay.pixel_y = dna.species.offset_features[OFFSET_ACCESSORY][2]
 
 		if(OFFSET_UNIFORM in dna.species.offset_features)
 			uniform_overlay.pixel_x += dna.species.offset_features[OFFSET_UNIFORM][1]
 			uniform_overlay.pixel_y += dna.species.offset_features[OFFSET_UNIFORM][2]
-			if(!STYLE_TESHARI)
-				U.accessory_overlay?.pixel_x = dna.species.offset_features[OFFSET_ACCESSORY][1]
-				U.accessory_overlay?.pixel_y = dna.species.offset_features[OFFSET_ACCESSORY][2]
 		overlays_standing[UNIFORM_LAYER] = uniform_overlay
 
 	apply_overlay(UNIFORM_LAYER)
@@ -127,7 +130,7 @@
 			if(STYLE_VOX)
 				icon_file = wear_suit.worn_icon_vox || 'modular_skyrat/master_files/icons/mob/clothing/species/vox/suit.dmi'
 			if(STYLE_TESHARI)
-				icon_file = TESHARI_SUIT_ICON
+				icon_file = wear_suit.worn_icon_teshari || TESHARI_SUIT_ICON
 
 		if(applied_style & STYLE_TAUR_ALL)
 			x_override = 64
@@ -174,7 +177,7 @@
 			icon_file = shoes.worn_icon_digi || 'modular_skyrat/master_files/icons/mob/clothing/feet_digi.dmi'
 		else if(isteshari(src))
 			applied_styles = STYLE_TESHARI
-			icon_file = TESHARI_FEET_ICON
+			icon_file = shoes.worn_icon_teshari || TESHARI_FEET_ICON
 
 		overlays_standing[SHOES_LAYER] = shoes.build_worn_icon(default_layer = SHOES_LAYER, default_icon_file = 'icons/mob/clothing/feet.dmi', override_icon = icon_file, mutant_styles = applied_styles, species = dna.species.species_clothing_path)
 		var/mutable_appearance/shoes_overlay = overlays_standing[SHOES_LAYER]
@@ -217,7 +220,7 @@
 			icon_file = gloves.worn_icon_vox || 'modular_skyrat/master_files/icons/mob/clothing/species/vox/hands.dmi'
 		else if(isteshari(src))
 			applied_styles = STYLE_TESHARI
-			icon_file = TESHARI_HANDS_ICON
+			icon_file = gloves.worn_icon_teshari || TESHARI_HANDS_ICON
 
 		overlays_standing[GLOVES_LAYER] = gloves.build_worn_icon(default_layer = GLOVES_LAYER, default_icon_file = 'icons/mob/clothing/hands.dmi', override_icon = icon_file, mutant_styles = applied_styles, species = dna.species.species_clothing_path)
 		gloves_overlay = overlays_standing[GLOVES_LAYER]
@@ -251,7 +254,7 @@
 				icon_file = glasses.worn_icon_vox || 'modular_skyrat/master_files/icons/mob/clothing/species/vox/eyes.dmi'
 			else if(isteshari(src))
 				applied_style |= STYLE_TESHARI
-				icon_file = TESHARI_EYES_ICON
+				icon_file = glasses.worn_icon_teshari ||TESHARI_EYES_ICON
 			overlays_standing[GLASSES_LAYER] = glasses.build_worn_icon(default_layer = GLASSES_LAYER, default_icon_file = 'icons/mob/clothing/eyes.dmi', override_icon = icon_file, mutant_styles = applied_style, species = dna.species.species_clothing_path)
 
 		var/mutable_appearance/glasses_overlay = overlays_standing[GLASSES_LAYER]
@@ -310,7 +313,7 @@
 		var/default_file = !isinhands ? (worn_icon ? worn_icon : default_icon_file) : default_icon_file
 		standing = wear_species_version(file_to_use, t_state, layer2use, species, default_file)
 	else if(femaleuniform)
-		standing = wear_female_version(t_state,file_to_use,layer2use,femaleuniform) //should layer2use be in sync with the adjusted value below? needs testing - shiz
+		standing = wear_female_version(t_state, file_to_use, layer2use, femaleuniform, greyscale_colors) //should layer2use be in sync with the adjusted value below? needs testing - shiz
 	if(!standing)
 		standing = mutable_appearance(file_to_use, t_state, -layer2use)
 
@@ -376,13 +379,14 @@
 
 	apply_overlay(BODYPARTS_LAYER)
 	update_damage_overlays()
+	update_wound_overlays()
 
 /obj/item/proc/wear_species_version(file_to_use, state_to_use, layer, species, default_file_to_use)
 	return
 
 /**
  * Generates a species-specific clothing icon.
- * 
+ *
  * Arguments:
  * * file_to_use - Icon file to use for clothing sprite
  * * state_to_use - Icon state to use within file_to_use
@@ -392,7 +396,7 @@
  */
 /obj/item/clothing/wear_species_version(file_to_use, state_to_use, layer, species, default_file_to_use)
 	LAZYINITLIST(GLOB.species_clothing_icons[species])
-	var/icon/species_clothing_icon = GLOB.species_clothing_icons[species]["[file_to_use]-[state_to_use]"] // Check if the icon we want already exists
+	var/icon/species_clothing_icon = GLOB.species_clothing_icons[species][get_species_clothing_key(file_to_use, state_to_use)] // Check if the icon we want already exists
 	if(!species_clothing_icon) 	// Create standing/laying icons if they don't exist
 		generate_species_clothing(file_to_use, state_to_use, species, default_file_to_use)
-	return mutable_appearance(GLOB.species_clothing_icons[species]["[file_to_use]-[state_to_use]"], layer = -layer)
+	return mutable_appearance(GLOB.species_clothing_icons[species][get_species_clothing_key(file_to_use, state_to_use)], layer = -layer)

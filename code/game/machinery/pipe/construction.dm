@@ -55,7 +55,7 @@ Buildable meters
 	update()
 	pixel_x += rand(-5, 5)
 	pixel_y += rand(-5, 5)
-	
+
 	//Flipping handled manually due to custom handling for trinary pipes
 	AddComponent(/datum/component/simple_rotation, ROTATION_NO_FLIPPING)
 	return ..()
@@ -311,6 +311,9 @@ Buildable meters
 	set_piping_layer(layer_to_set)
 	balloon_alert(user, "pipe layer set to [piping_layer]")
 	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
+
+/obj/item/pipe/AltClick(mob/user)
+	return ..() // This hotkey is BLACKLISTED since it's used by /datum/component/simple_rotation
 
 /obj/item/pipe/trinary/flippable/examine(mob/user)
 	. = ..()

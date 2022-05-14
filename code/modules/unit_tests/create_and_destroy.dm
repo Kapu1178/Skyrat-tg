@@ -23,6 +23,8 @@
 		/obj/structure/holosign/robot_seat,
 		//Singleton
 		/mob/dview,
+		//Requires a circuit url
+		/obj/effect/mapping_helpers/circuit_spawner,
 	)
 	//Say it with me now, type template
 	ignore += typesof(/obj/effect/mapping_helpers/atom_injector)
@@ -33,12 +35,8 @@
 	ignore += typesof(/obj/item/modular_computer/tablet/integrated)
 	//This one demands a computer, ditto
 	ignore += typesof(/obj/item/modular_computer/processor)
-	//Needs special input, let's be nice
-	ignore += typesof(/obj/effect/abstract/proximity_checker)
 	//Very finiky, blacklisting to make things easier
 	ignore += typesof(/obj/item/poster/wanted)
-	//We can't pass a mind into this
-	ignore += typesof(/obj/item/phylactery)
 	//This expects a seed, we can't pass it
 	ignore += typesof(/obj/item/food/grown)
 	//Nothing to hallucinate if there's nothing to hallicinate
@@ -96,6 +94,8 @@
 	ignore += typesof(/obj/structure/biohazard_blob)
 	//Unused - not supposed to be spawned without SSliquids
 	ignore += typesof(/turf/open/openspace/ocean)
+	//Baseturf editors can only go up to ten, stop this.
+	ignore += typesof(/obj/effect/baseturf_helper)
 	//SKYRAT EDIT END
 
 	var/list/cached_contents = spawn_at.contents.Copy()

@@ -110,6 +110,10 @@
 /obj/machinery/atmospherics/proc/destroy_network()
 	return
 
+/obj/machinery/atmospherics/proc/set_on(active)
+	on = active
+	SEND_SIGNAL(src, COMSIG_ATMOS_MACHINE_SET_ON, on)
+
 /// This should only be called by SSair as part of the rebuild queue.
 /// Handles rebuilding pipelines after init or they've been changed.
 /obj/machinery/atmospherics/proc/rebuild_pipes()
@@ -455,7 +459,7 @@
 		PIPING_FORWARD_SHIFT(pipe_overlay, piping_layer, 2)
 	return pipe_overlay
 
-/obj/machinery/atmospherics/on_construction(obj_color, set_layer)
+/obj/machinery/atmospherics/on_construction(obj_color, set_layer = PIPING_LAYER_DEFAULT)
 	if(can_unwrench)
 		add_atom_colour(obj_color, FIXED_COLOUR_PRIORITY)
 		pipe_color = obj_color

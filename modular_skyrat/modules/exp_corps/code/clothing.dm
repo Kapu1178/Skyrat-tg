@@ -16,6 +16,17 @@
 	worn_icon_state = "webbing_exp_corps"
 	icon = 'modular_skyrat/master_files/icons/obj/clothing/belts.dmi'
 	worn_icon = 'modular_skyrat/master_files/icons/mob/clothing/belt.dmi'
+	uses_advanced_reskins = TRUE
+	unique_reskin = list(
+		"Webbing" = list(
+			RESKIN_ICON_STATE = "webbing_exp_corps",
+			RESKIN_WORN_ICON_STATE = "webbing_exp_corps"
+		),
+		"Belt" = list(
+			RESKIN_ICON_STATE = "belt_exp_corps",
+			RESKIN_WORN_ICON_STATE = "belt_exp_corps"
+		),
+	)
 
 /obj/item/storage/belt/military/expeditionary_corps/combat_tech
 	name = "combat tech's chest rig"
@@ -56,7 +67,7 @@
 	new /obj/item/binoculars(src)
 	new /obj/item/storage/fancy/cigarettes/cigpack_robust(src)
 	new /obj/item/lighter(src)
-	new /obj/item/clothing/mask/bandana/skull(src)
+	new /obj/item/clothing/mask/bandana/color/skull(src)
 
 /obj/item/clothing/shoes/combat/expeditionary_corps
 	name = "expeditionary corps boots"
@@ -114,6 +125,17 @@
 	worn_icon = 'modular_skyrat/modules/exp_corps/icons/mob_backpack.dmi'
 	slowdown = 0
 	resistance_flags = FIRE_PROOF
+	uses_advanced_reskins = TRUE
+	unique_reskin = list(
+		"Backpack" = list(
+			RESKIN_ICON_STATE = "exp_corps",
+			RESKIN_WORN_ICON_STATE = "exp_corps"
+		),
+		"Belt" = list(
+			RESKIN_ICON_STATE = "exp_corps_satchel",
+			RESKIN_WORN_ICON_STATE = "exp_corps_satchel"
+		),
+	)
 
 /obj/item/clothing/suit/armor/vest/expeditionary_corps
 	name = "expeditionary corps armor vest"
@@ -139,34 +161,6 @@
 		/obj/item/tank/internals/plasmaman
 		)
 
-/obj/item/clothing/suit/space/hardsuit/expeditionary_corps
-	name = "expeditionary corps hardsuit"
-	desc = "An advanced hardsuit designed for exploratory missions."
-	icon = 'modular_skyrat/master_files/icons/obj/clothing/suits.dmi'
-	worn_icon = 'modular_skyrat/master_files/icons/mob/clothing/suit.dmi'
-	icon_state = "hardsuit-hexp_corps"
-	inhand_icon_state = "eng_hardsuit"
-	hardsuit_type = "hexp_corps"
-	armor = list(MELEE = 42, BULLET = 42, LASER = 42, ENERGY = 42, BOMB = 60, BIO = 0, FIRE = 80, ACID = 100, WOUND = 30)
-	allowed = list(/obj/item/gun, /obj/item/ammo_box,/obj/item/ammo_casing, /obj/item/melee/baton, /obj/item/melee/energy/sword, /obj/item/restraints/handcuffs, /obj/item/tank/internals)
-	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/expeditionary_corps
-	jetpack = /obj/item/tank/jetpack/suit
-	cell = /obj/item/stock_parts/cell/hyper
-	slowdown = 0.5
-	hardsuit_tail_colors = list("#443344", "#222233", "#998888")
-
-/obj/item/clothing/head/helmet/space/hardsuit/expeditionary_corps
-	name = "expeditionary corps hardsuit helmet"
-	desc = "An advanced hardsuit helmet designed for exploratory missions."
-	icon = 'modular_skyrat/master_files/icons/obj/clothing/hats.dmi'
-	worn_icon = 'modular_skyrat/master_files/icons/mob/clothing/head.dmi'
-	icon_state = "hardsuit0-hexp_corps"
-	inhand_icon_state = "sec_helm"
-	hardsuit_type = "hexp_corps"
-	armor = list(MELEE = 42, BULLET = 42, LASER = 42, ENERGY = 42, BOMB = 60, BIO = 0, FIRE = 80, ACID = 100, WOUND = 30)
-	visor_flags_inv = HIDEMASK|HIDEEYES|HIDEFACE|HIDEFACIALHAIR|HIDESNOUT
-	visor_flags = STOPSPRESSUREDAMAGE
-	slowdown = 0.5
 
 /obj/item/clothing/head/helmet/expeditionary_corps
 	name = "expeditionary corps helmet"
@@ -183,7 +177,7 @@
 /datum/action/item_action/toggle_nv
 	name = "Toggle Nightvision"
 
-/datum/action/item_action/toggle_nv/Trigger()
+/datum/action/item_action/toggle_nv/Trigger(trigger_flags)
 	var/obj/item/clothing/head/helmet/expeditionary_corps/my_helmet = target
 	if(!my_helmet.current_user)
 		return

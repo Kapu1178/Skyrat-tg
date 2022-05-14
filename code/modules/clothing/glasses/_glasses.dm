@@ -64,6 +64,7 @@
 				eyes.applyOrganDamage(5)
 
 /obj/item/clothing/glasses/AltClick(mob/user)
+	. = ..() //SKYRAT EDIT ADDITION
 	if(glass_colour_type && ishuman(user))
 		var/mob/living/carbon/human/human_user = user
 
@@ -142,15 +143,28 @@
 	desc = "A pair of snazzy goggles used to protect against chemical spills. Fitted with an analyzer for scanning items and reagents."
 	icon_state = "purple"
 	inhand_icon_state = "glasses"
-	clothing_flags = SCAN_REAGENTS //You can see reagents while wearing science goggles
 	actions_types = list(/datum/action/item_action/toggle_research_scanner)
 	glass_colour_type = /datum/client_colour/glass_colour/purple
 	resistance_flags = ACID_PROOF
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 80, ACID = 100)
+	clothing_traits = list(TRAIT_REAGENT_SCANNER)
 
 /obj/item/clothing/glasses/science/item_action_slot_check(slot)
 	if(slot == ITEM_SLOT_EYES)
 		return 1
+
+/obj/item/clothing/glasses/science/suicide_act(mob/living/carbon/user)
+	user.visible_message(span_suicide("[user] is tightening \the [src]'s straps around [user.p_their()] neck! It looks like [user.p_theyre()] trying to commit suicide!"))
+	return OXYLOSS
+
+/obj/item/clothing/glasses/science/night
+	name = "night vision science goggles"
+	desc = "Lets the user see in the dark and recognize chemical compounds at a glance."
+	icon_state = "scihudnight"
+	darkness_view = 8
+	flash_protect = FLASH_PROTECTION_SENSITIVE
+	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	glass_colour_type = /datum/client_colour/glass_colour/green
 
 /obj/item/clothing/glasses/night
 	name = "night vision goggles"
@@ -161,10 +175,6 @@
 	flash_protect = FLASH_PROTECTION_SENSITIVE
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 	glass_colour_type = /datum/client_colour/glass_colour/green
-
-/obj/item/clothing/glasses/science/suicide_act(mob/living/carbon/user)
-	user.visible_message(span_suicide("[user] is tightening \the [src]'s straps around [user.p_their()] neck! It looks like [user.p_theyre()] trying to commit suicide!"))
-	return OXYLOSS
 
 /obj/item/clothing/glasses/eyepatch
 	name = "eyepatch"
@@ -289,7 +299,7 @@
 	inhand_icon_state = "sunglasses"
 	darkness_view = 1
 	flash_protect = FLASH_PROTECTION_FLASH
-	tint = 0.25
+	tint = 1
 	glass_colour_type = /datum/client_colour/glass_colour/gray
 	dog_fashion = /datum/dog_fashion/head
 
@@ -297,14 +307,14 @@
 	name = "beer goggles"
 	icon_state = "sunhudbeer"
 	desc = "A pair of sunglasses outfitted with apparatus to scan reagents, as well as providing an innate understanding of liquid viscosity while in motion."
-	clothing_flags = SCAN_REAGENTS
-	clothing_traits = list(TRAIT_BOOZE_SLIDER)
+	clothing_traits = list(TRAIT_BOOZE_SLIDER, TRAIT_REAGENT_SCANNER)
 
 /obj/item/clothing/glasses/sunglasses/chemical
 	name = "science glasses"
 	icon_state = "sunhudsci"
 	desc = "A pair of tacky purple sunglasses that allow the wearer to recognize various chemical compounds with only a glance."
-	clothing_flags = SCAN_REAGENTS
+	clothing_traits = list(TRAIT_REAGENT_SCANNER)
+	actions_types = list(/datum/action/item_action/toggle_research_scanner)
 
 /obj/item/clothing/glasses/sunglasses/gar
 	name = "black gar glasses"
@@ -349,7 +359,7 @@
 	actions_types = list(/datum/action/item_action/toggle)
 	flash_protect = FLASH_PROTECTION_WELDER
 	custom_materials = list(/datum/material/iron = 250)
-	tint = 2.75
+	tint = 2
 	visor_vars_to_toggle = VISOR_FLASHPROTECT | VISOR_TINT
 	flags_cover = GLASSESCOVERSEYES
 	glass_colour_type = /datum/client_colour/glass_colour/gray
@@ -530,8 +540,8 @@
 	flash_protect = FLASH_PROTECTION_WELDER
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 	glass_colour_type = FALSE
-	clothing_flags = SCAN_REAGENTS
 	vision_flags = SEE_TURFS
+	clothing_traits = list(TRAIT_REAGENT_SCANNER, TRAIT_SUPERMATTER_MADNESS_IMMUNE)
 	var/list/hudlist = list(DATA_HUD_MEDICAL_ADVANCED, DATA_HUD_DIAGNOSTIC_ADVANCED, DATA_HUD_SECURITY_ADVANCED)
 	var/xray = FALSE
 

@@ -15,6 +15,8 @@
 	rad_insulation = RAD_VERY_LIGHT_INSULATION
 	pass_flags_self = PASSGLASS
 	set_dir_on_move = FALSE
+	flags_ricochet = RICOCHET_HARD
+	receive_ricochet_chance_mod = 0.5
 	var/state = WINDOW_OUT_OF_FRAME
 	var/reinf = FALSE
 	var/heat_resistance = 800
@@ -25,12 +27,12 @@
 	var/glass_amount = 1
 	var/mutable_appearance/crack_overlay
 	var/real_explosion_block //ignore this, just use explosion_block
-	var/breaksound = "shatter"
-	var/knocksound = 'sound/effects/Glassknock.ogg'
-	var/bashsound = 'sound/effects/Glassbash.ogg'
-	var/hitsound = 'sound/effects/Glasshit.ogg'
-	flags_ricochet = RICOCHET_HARD
-	receive_ricochet_chance_mod = 0.5
+	var/break_sound = SFX_SHATTER
+	var/knock_sound = 'sound/effects/glassknock.ogg'
+	var/bash_sound = 'sound/effects/glassbash.ogg'
+	var/hit_sound = 'sound/effects/glasshit.ogg'
+	/// If some inconsiderate jerk has had their blood spilled on this window, thus making it cleanable
+	var/bloodied = FALSE
 
 /obj/structure/window/examine(mob/user)
 	. = ..()
@@ -144,7 +146,7 @@
 	user.changeNext_move(CLICK_CD_MELEE)
 	user.visible_message(span_notice("Something knocks on [src]."))
 	add_fingerprint(user)
-	playsound(src, knocksound, 50, TRUE)
+	playsound(src, knock_sound, 50, TRUE)
 	return COMPONENT_CANCEL_ATTACK_CHAIN
 
 
@@ -164,11 +166,11 @@
 	if(!user.combat_mode)
 		user.visible_message(span_notice("[user] knocks on [src]."), \
 			span_notice("You knock on [src]."))
-		playsound(src, knocksound, 50, TRUE)
+		playsound(src, knock_sound, 50, TRUE)
 	else
 		user.visible_message(span_warning("[user] bashes [src]!"), \
 			span_warning("You bash [src]!"))
-		playsound(src, bashsound, 100, TRUE)
+		playsound(src, bash_sound, 100, TRUE)
 
 /obj/structure/window/attack_paw(mob/user, list/modifiers)
 	return attack_hand(user, modifiers)
@@ -178,51 +180,71 @@
 		return
 	..()
 
+/obj/structure/window/tool_act(mob/living/user, obj/item/tool, tool_type, is_right_clicking)
+	if(!can_be_reached(user))
+		return TRUE //skip the afterattack
+	add_fingerprint(user)
+	return ..()
+
+/obj/structure/window/welder_act(mob/living/user, obj/item/tool)
+	if(atom_integrity >= max_integrity)
+		to_chat(user, span_warning("[src] is already in good condition!"))
+		return TOOL_ACT_TOOLTYPE_SUCCESS
+	if(!tool.tool_start_check(user, amount = 0))
+		return FALSE
+	to_chat(user, span_notice("You begin repairing [src]..."))
+	if(tool.use_tool(src, user, 4 SECONDS, volume = 50))
+		atom_integrity = max_integrity
+		update_nearby_icons()
+		to_chat(user, span_notice("You repair [src]."))
+	return TOOL_ACT_TOOLTYPE_SUCCESS
+
+/obj/structure/window/screwdriver_act(mob/living/user, obj/item/tool)
+	if((flags_1 & NODECONSTRUCT_1) || (reinf && state >= RWINDOW_FRAME_BOLTED))
+		return
+	to_chat(user, span_notice("You begin to [anchored ? "unscrew the window from":"screw the window to"] the floor..."))
+	if(tool.use_tool(src, user, decon_speed, volume = 75, extra_checks = CALLBACK(src, .proc/check_anchored, anchored)))
+		set_anchored(!anchored)
+		to_chat(user, span_notice("You [anchored ? "fasten the window to":"unfasten the window from"] the floor."))
+	return TOOL_ACT_TOOLTYPE_SUCCESS
+
+/obj/structure/window/wrench_act(mob/living/user, obj/item/tool)
+	if(anchored)
+		return FALSE
+	if((flags_1 & NODECONSTRUCT_1) || (reinf && state >= RWINDOW_FRAME_BOLTED))
+		return FALSE
+
+	to_chat(user, span_notice("You begin to disassemble [src]..."))
+	if(!tool.use_tool(src, user, decon_speed, volume = 75, extra_checks = CALLBACK(src, .proc/check_state_and_anchored, state, anchored)))
+		return TOOL_ACT_TOOLTYPE_SUCCESS
+	var/obj/item/stack/sheet/G = new glass_type(user.loc, glass_amount)
+	if (!QDELETED(G))
+		G.add_fingerprint(user)
+	playsound(src, 'sound/items/deconstruct.ogg', 50, TRUE)
+	to_chat(user, span_notice("You successfully disassemble [src]."))
+	qdel(src)
+	return TOOL_ACT_TOOLTYPE_SUCCESS
+
+/obj/structure/window/crowbar_act(mob/living/user, obj/item/tool)
+	if(!anchored || !reinf)
+		return FALSE
+	if((flags_1 & NODECONSTRUCT_1) || (state != WINDOW_OUT_OF_FRAME))
+		return FALSE
+	to_chat(user, span_notice("You begin to lever the window into the frame..."))
+	if(tool.use_tool(src, user, 10 SECONDS, volume = 75, extra_checks = CALLBACK(src, .proc/check_state_and_anchored, state, anchored)))
+		state = RWINDOW_SECURE
+		to_chat(user, span_notice("You pry the window into the frame."))
+	return TOOL_ACT_TOOLTYPE_SUCCESS
+
 /obj/structure/window/attackby(obj/item/I, mob/living/user, params)
 	if(!can_be_reached(user))
 		return TRUE //skip the afterattack
 
 	add_fingerprint(user)
-
-	if(I.tool_behaviour == TOOL_WELDER)
-		if(atom_integrity < max_integrity)
-			if(!I.tool_start_check(user, amount = 0))
-				return
-
-			to_chat(user, span_notice("You begin repairing [src]..."))
-			if(I.use_tool(src, user, 40, volume = 50))
-				atom_integrity = max_integrity
-				update_nearby_icons()
-				to_chat(user, span_notice("You repair [src]."))
-		else
-			to_chat(user, span_warning("[src] is already in good condition!"))
-		return
-
-	if(!(flags_1&NODECONSTRUCT_1) && !(reinf && state >= RWINDOW_FRAME_BOLTED))
-		if(I.tool_behaviour == TOOL_SCREWDRIVER)
-			to_chat(user, span_notice("You begin to [anchored ? "unscrew the window from":"screw the window to"] the floor..."))
-			if(I.use_tool(src, user, decon_speed, volume = 75, extra_checks = CALLBACK(src, .proc/check_anchored, anchored)))
-				set_anchored(!anchored)
-				to_chat(user, span_notice("You [anchored ? "fasten the window to":"unfasten the window from"] the floor."))
-			return
-		else if(I.tool_behaviour == TOOL_WRENCH && !anchored)
-			to_chat(user, span_notice("You begin to disassemble [src]..."))
-			if(I.use_tool(src, user, decon_speed, volume = 75, extra_checks = CALLBACK(src, .proc/check_state_and_anchored, state, anchored)))
-				var/obj/item/stack/sheet/G = new glass_type(user.loc, glass_amount)
-				if (!QDELETED(G))
-					G.add_fingerprint(user)
-				playsound(src, 'sound/items/Deconstruct.ogg', 50, TRUE)
-				to_chat(user, span_notice("You successfully disassemble [src]."))
-				qdel(src)
-			return
-		else if(I.tool_behaviour == TOOL_CROWBAR && reinf && (state == WINDOW_OUT_OF_FRAME) && anchored)
-			to_chat(user, span_notice("You begin to lever the window into the frame..."))
-			if(I.use_tool(src, user, 100, volume = 75, extra_checks = CALLBACK(src, .proc/check_state_and_anchored, state, anchored)))
-				state = RWINDOW_SECURE
-				to_chat(user, span_notice("You pry the window into the frame."))
-			return
-
 	return ..()
+
+/obj/structure/window/AltClick(mob/user)
+	return ..() // This hotkey is BLACKLISTED since it's used by /datum/component/simple_rotation
 
 /obj/structure/window/set_anchored(anchorvalue)
 	..()
@@ -263,18 +285,18 @@
 	switch(damage_type)
 		if(BRUTE)
 			if(damage_amount)
-				playsound(src, hitsound, 75, TRUE)
+				playsound(src, hit_sound, 75, TRUE)
 			else
 				playsound(src, 'sound/weapons/tap.ogg', 50, TRUE)
 		if(BURN)
-			playsound(src, 'sound/items/Welder.ogg', 100, TRUE)
+			playsound(src, 'sound/items/welder.ogg', 100, TRUE)
 
 
 /obj/structure/window/deconstruct(disassembled = TRUE)
 	if(QDELETED(src))
 		return
 	if(!disassembled)
-		playsound(src, breaksound, 70, TRUE)
+		playsound(src, break_sound, 70, TRUE)
 		if(!(flags_1 & NODECONSTRUCT_1))
 			for(var/obj/item/shard/debris in spawnDebris(drop_location()))
 				transfer_fingerprints_to(debris) // transfer fingerprints to shards only
@@ -312,7 +334,7 @@
 	if(anchored)
 		move_update_air(T)
 
-/obj/structure/window/can_atmos_pass(turf/T)
+/obj/structure/window/can_atmos_pass(turf/T, vertical = FALSE)
 	if(!anchored || !density)
 		return TRUE
 	return !(fulltile || dir == get_dir(loc, T))
@@ -346,7 +368,7 @@
 /obj/structure/window/atmos_expose(datum/gas_mixture/air, exposed_temperature)
 	take_damage(round(air.return_volume() / 100), BURN, 0, 0)
 
-/obj/structure/window/get_dumping_location(obj/item/storage/source,mob/user)
+/obj/structure/window/get_dumping_location()
 	return null
 
 /obj/structure/window/CanAStarPass(obj/item/card/id/ID, to_dir, atom/movable/caller)
@@ -391,6 +413,7 @@
 //this is shitcode but all of construction is shitcode and needs a refactor, it works for now
 //If you find this like 4 years later and construction still hasn't been refactored, I'm so sorry for this //Adding a timestamp, I found this in 2020, I hope it's from this year -Lemon
 //2021 AND STILLLL GOING STRONG
+//2022 BABYYYYY ~lewc
 /obj/structure/window/reinforced/attackby_secondary(obj/item/tool, mob/user, params)
 	switch(state)
 		if(RWINDOW_SECURE)
@@ -719,10 +742,10 @@
 	can_atmos_pass = ATMOS_PASS_YES
 	resistance_flags = FLAMMABLE
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, FIRE = 0, ACID = 0)
-	knocksound = "pageturn"
-	bashsound = 'sound/weapons/slashmiss.ogg'
-	breaksound = 'sound/items/poster_ripped.ogg'
-	hitsound = 'sound/weapons/slashmiss.ogg'
+	knock_sound = SFX_PAGE_TURN
+	bash_sound = 'sound/weapons/slashmiss.ogg'
+	break_sound = 'sound/items/poster_ripped.ogg'
+	hit_sound = 'sound/weapons/slashmiss.ogg'
 	var/static/mutable_appearance/torn = mutable_appearance('icons/obj/smooth_structures/paperframes.dmi',icon_state = "torn", layer = ABOVE_OBJ_LAYER - 0.1)
 	var/static/mutable_appearance/paper = mutable_appearance('icons/obj/smooth_structures/paperframes.dmi',icon_state = "paper", layer = ABOVE_OBJ_LAYER - 0.1)
 

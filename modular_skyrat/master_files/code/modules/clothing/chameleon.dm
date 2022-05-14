@@ -7,7 +7,7 @@
 	..(Target)
 	savedslowdown = slowdown
 
-/datum/action/chameleon_slowdown/Trigger()
+/datum/action/chameleon_slowdown/Trigger(trigger_flags)
 	var/obj/item/clothing/target_clothing = target
 	var/slow = target_clothing.slowdown
 	target_clothing.slowdown = savedslowdown
@@ -35,8 +35,6 @@
 		target_clothing.worn_icon_muzzled = initial(picked_clothing.worn_icon_muzzled)
 		target_clothing.flags_inv = initial(picked_clothing.flags_inv)
 		target_clothing.visor_flags_cover = initial(picked_clothing.visor_flags_cover)
-		target_clothing.dynamic_hair_suffix = initial(picked_clothing.dynamic_hair_suffix)
-		target_clothing.dynamic_fhair_suffix = initial(picked_clothing.dynamic_fhair_suffix)
 		target_clothing.slowdown = 0
 		// var/slow = initial(picked_clothing.slowdown) /// DISABLED UNTIL YOU CAN MAKE THIS WORK WITH THE BROKEN CHAMELEON CLOTHES!!!
 		// if(slow)

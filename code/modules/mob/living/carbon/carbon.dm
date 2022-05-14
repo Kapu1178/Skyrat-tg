@@ -3,12 +3,12 @@
 	create_reagents(1000, REAGENT_HOLDER_ALIVE)
 	assign_bodypart_ownership()
 	update_body_parts() //to update the carbon's new bodyparts appearance
+	register_context()
 
 	// Carbons cannot taste anything without a tongue; the tongue organ removes this on Insert
 	ADD_TRAIT(src, TRAIT_AGEUSIA, NO_TONGUE_TRAIT)
 
 	GLOB.carbon_list += src
-	RegisterSignal(src, COMSIG_LIVING_DEATH, .proc/attach_rot)
 	var/static/list/loc_connections = list(
 		COMSIG_CARBON_DISARM_PRESHOVE = .proc/disarm_precollide,
 		COMSIG_CARBON_DISARM_COLLIDE = .proc/disarm_collision,
@@ -85,6 +85,12 @@
 
 	return ..()
 
+/mob/living/carbon/CtrlShiftClick(mob/user)
+	..()
+	if(iscarbon(user))
+		var/mob/living/carbon/carbon_user = user
+		carbon_user.give(src)
+
 /mob/living/carbon/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	. = ..()
 	var/hurt = TRUE
@@ -115,7 +121,7 @@
 			visible_message(span_danger("[src] crashes into [victim][extra_speed ? " really hard" : ""], knocking them both over!"),\
 				span_userdanger("You violently crash into [victim][extra_speed ? " extra hard" : ""]!"))
 		playsound(src,'sound/weapons/punch1.ogg',50,TRUE)
-
+		log_combat(src, victim, "crashed into")
 
 //Throwing stuff
 /mob/living/carbon/proc/toggle_throw_mode()
@@ -350,7 +356,7 @@
 		return FALSE
 	visible_message(span_danger("[src] manages to [cuff_break ? "break" : "remove"] [I]!"))
 	to_chat(src, span_notice("You successfully [cuff_break ? "break" : "remove"] [I]."))
-
+	
 	if(cuff_break)
 		. = !((I == handcuffed) || (I == legcuffed))
 		qdel(I)
@@ -549,7 +555,7 @@
 		filters -= FILTER_STAMINACRIT
 	else
 		return
-	update_health_hud()
+	update_stamina_hud()
 
 /mob/living/carbon/update_sight()
 	if(!client)
@@ -593,17 +599,20 @@
 		if(!isnull(G.lighting_alpha))
 			lighting_alpha = min(lighting_alpha, G.lighting_alpha)
 
-	if(wear_mask)
-		var/obj/item/clothing/mask/dressed_mask = wear_mask
-		if(dressed_mask.tint || initial(dressed_mask.tint))
-			update_tint()
+	if(HAS_TRAIT(src, TRAIT_TRUE_NIGHT_VISION))
+		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE)
+		see_in_dark = max(see_in_dark, 8)
+
+	if(HAS_TRAIT(src, TRAIT_MESON_VISION))
+		sight |= SEE_TURFS
+		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
 
 	if(HAS_TRAIT(src, TRAIT_THERMAL_VISION))
-		sight |= (SEE_MOBS)
+		sight |= SEE_MOBS
 		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE)
 
 	if(HAS_TRAIT(src, TRAIT_XRAY_VISION))
-		sight |= (SEE_TURFS|SEE_MOBS|SEE_OBJS)
+		sight |= SEE_TURFS|SEE_MOBS|SEE_OBJS
 		see_in_dark = max(see_in_dark, 8)
 
 	if(see_override)
@@ -620,18 +629,13 @@
 	if(!GLOB.tinted_weldhelh)
 		return
 	tinttotal = get_total_tint()
-	clear_fullscreen("tint", 0)
 	if(tinttotal >= TINT_BLIND)
 		become_blind(EYES_COVERED)
-		return
-	cure_blind(EYES_COVERED)
-	if(tinttotal > TINT_DARKENED && tinttotal < TINT_BLIND)
-		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, 2, clamp(tinttotal * 100, 0, 255))
-	else if(tinttotal > TINT_LIGHTER && tinttotal <= TINT_DARKENED)
-		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, 1, clamp(tinttotal * 150, 0, 255))
-	else if(tinttotal > TINT_MINIMAL && tinttotal <= TINT_LIGHTER)
-		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, 0, clamp(tinttotal * 200, 0, 255))
-	else if(tinttotal <= TINT_MINIMAL)
+	else if(tinttotal >= TINT_DARKENED)
+		cure_blind(EYES_COVERED)
+		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, 2)
+	else
+		cure_blind(EYES_COVERED)
 		clear_fullscreen("tint", 0)
 
 /mob/living/carbon/proc/get_total_tint()
@@ -780,6 +784,29 @@
 		else
 			hud_used.healths.icon_state = "health7"
 
+/mob/living/carbon/update_stamina_hud(shown_stamina_amount)
+	if(!client || !hud_used?.stamina)
+		return
+	if(stat == DEAD || IsStun() || IsParalyzed() || IsImmobilized() || IsKnockdown() || IsFrozen())
+		hud_used.stamina.icon_state = "stamina6"
+	else
+		if(shown_stamina_amount == null)
+			shown_stamina_amount = health - getStaminaLoss() - crit_threshold
+		if(shown_stamina_amount >= health)
+			hud_used.stamina.icon_state = "stamina0"
+		else if(shown_stamina_amount > health*0.8)
+			hud_used.stamina.icon_state = "stamina1"
+		else if(shown_stamina_amount > health*0.6)
+			hud_used.stamina.icon_state = "stamina2"
+		else if(shown_stamina_amount > health*0.4)
+			hud_used.stamina.icon_state = "stamina3"
+		else if(shown_stamina_amount > health*0.2)
+			hud_used.stamina.icon_state = "stamina4"
+		else if(shown_stamina_amount > 0)
+			hud_used.stamina.icon_state = "stamina5"
+		else
+			hud_used.stamina.icon_state = "stamina6"
+
 /mob/living/carbon/proc/update_internals_hud_icon(internal_state = 0)
 	if(hud_used?.internals)
 		hud_used.internals.icon_state = "internal[internal_state]"
@@ -821,6 +848,7 @@
 			set_stat(CONSCIOUS)
 	update_damage_hud()
 	update_health_hud()
+	update_stamina_hud()
 	med_hud_set_status()
 
 
@@ -829,15 +857,29 @@
 	if(handcuffed)
 		drop_all_held_items()
 		stop_pulling()
-		throw_alert("handcuffed", /atom/movable/screen/alert/restrained/handcuffed, new_master = src.handcuffed)
+		throw_alert(ALERT_HANDCUFFED, /atom/movable/screen/alert/restrained/handcuffed, new_master = src.handcuffed)
 		SEND_SIGNAL(src, COMSIG_ADD_MOOD_EVENT, "handcuffed", /datum/mood_event/handcuffed)
 	else
-		clear_alert("handcuffed")
+		clear_alert(ALERT_HANDCUFFED)
 		SEND_SIGNAL(src, COMSIG_CLEAR_MOOD_EVENT, "handcuffed")
 	update_action_buttons_icon() //some of our action buttons might be unusable when we're handcuffed.
 	update_inv_handcuffed()
 	update_hud_handcuffed()
 
+/mob/living/carbon/heal_and_revive(heal_to = 75, revive_message)
+	// We can't heal them if they're missing a heart
+	if(needs_heart() && !getorganslot(ORGAN_SLOT_HEART))
+		return FALSE
+
+	// We can't heal them if they're missing their lungs
+	if(!HAS_TRAIT(src, TRAIT_NOBREATH) && !getorganslot(ORGAN_SLOT_LUNGS))
+		return FALSE
+
+	// And we can't heal them if they're missing their liver
+	if(!getorganslot(ORGAN_SLOT_LIVER))
+		return FALSE
+
+	return ..()
 
 /mob/living/carbon/fully_heal(admin_revive = FALSE)
 	if(reagents)
@@ -884,6 +926,9 @@
 	if (HAS_TRAIT(src, TRAIT_HUSK))
 		return DEFIB_FAIL_HUSK
 
+	if (HAS_TRAIT(src, TRAIT_DEFIB_BLACKLISTED))
+		return DEFIB_FAIL_BLACKLISTED
+
 	if ((getBruteLoss() >= MAX_REVIVE_BRUTE_DAMAGE) || (getFireLoss() >= MAX_REVIVE_FIRE_DAMAGE))
 		return DEFIB_FAIL_TISSUE_DAMAGE
 
@@ -898,7 +943,7 @@
 			return DEFIB_FAIL_FAILING_HEART
 
 	// Carbons with HARS do not need a brain
-	if (!dna?.check_mutation(HARS))
+	if (!dna?.check_mutation(/datum/mutation/human/headless))
 		var/obj/item/organ/brain/BR = getorgan(/obj/item/organ/brain)
 
 		if (QDELETED(BR))
@@ -1184,7 +1229,7 @@
 /mob/living/carbon/proc/is_bleeding()
 	for(var/i in bodyparts)
 		var/obj/item/bodypart/BP = i
-		if(BP.get_bleed_rate())
+		if(BP.get_part_bleed_rate())
 			return TRUE
 
 /// get our total bleedrate
@@ -1192,7 +1237,7 @@
 	var/total_bleed_rate = 0
 	for(var/i in bodyparts)
 		var/obj/item/bodypart/BP = i
-		total_bleed_rate += BP.get_bleed_rate()
+		total_bleed_rate += BP.get_part_bleed_rate()
 
 	return total_bleed_rate
 
@@ -1339,7 +1384,7 @@
 
 /mob/living/carbon/proc/disarm_collision(datum/source, mob/living/carbon/shover, mob/living/carbon/target, shove_blocked)
 	SIGNAL_HANDLER
-	if(src == target || !can_be_shoved_into)
+	if(src == target || LAZYFIND(target.buckled_mobs, src) || !can_be_shoved_into)
 		return
 	target.Knockdown(SHOVE_KNOCKDOWN_HUMAN)
 	if(!is_shove_knockdown_blocked())
@@ -1349,7 +1394,6 @@
 	to_chat(src, span_danger("You shove [target.name] into [name]!"))
 	log_combat(src, target, "shoved", "into [name]")
 	return COMSIG_CARBON_SHOVE_HANDLED
-
 
 // Checks to see how many hands this person has to sign with.
 /mob/living/carbon/proc/check_signables_state()
@@ -1362,9 +1406,27 @@
 		return SIGN_HANDS_FULL // These aren't booleans
 	if(exit_left && exit_right)//Can't sign with no arms!
 		return SIGN_ARMLESS
-	if(HAS_TRAIT(src, TRAIT_HANDS_BLOCKED) || HAS_TRAIT(src, TRAIT_EMOTEMUTE))
-		return SIGN_TRAIT_BLOCKED
 	if(handcuffed) // Cuffed, usually will show visual effort to sign
 		return SIGN_CUFFED
+	if(HAS_TRAIT(src, TRAIT_HANDS_BLOCKED) || HAS_TRAIT(src, TRAIT_EMOTEMUTE))
+		return SIGN_TRAIT_BLOCKED
 	if(length(empty_indexes) == 1 || exit_left || exit_right) // One arm gone
 		return SIGN_ONE_HAND
+
+/**
+ * This proc is a helper for spraying blood for things like slashing/piercing wounds and dismemberment.
+ *
+ * The strength of the splatter in the second argument determines how much it can dirty and how far it can go
+ *
+ * Arguments:
+ * * splatter_direction: Which direction the blood is flying
+ * * splatter_strength: How many tiles it can go, and how many items it can pass over and dirty
+ */
+/mob/living/carbon/proc/spray_blood(splatter_direction, splatter_strength = 3)
+	if(!isturf(loc))
+		return
+	var/obj/effect/decal/cleanable/blood/hitsplatter/our_splatter = new(loc)
+	our_splatter.add_blood_DNA(return_blood_DNA())
+	our_splatter.blood_dna_info = get_blood_dna_list()
+	var/turf/targ = get_ranged_target_turf(src, splatter_direction, splatter_strength)
+	our_splatter.fly_towards(targ, splatter_strength)

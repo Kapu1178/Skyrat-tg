@@ -106,6 +106,8 @@
 				else
 					auth_id = "[ID.registered_name] ([ID.assignment]):"
 					log_activity("[auth_id] attempted to log into the terminal")
+					playsound(src, 'sound/machines/terminal_error.ogg', 50, FALSE)
+					to_chat(usr, span_warning("ID REJECTED - Access Denied."))
 				return
 			auth_id = "Unknown (Unknown):"
 			log_activity("[auth_id] attempted to log into the terminal")
@@ -122,7 +124,7 @@
 			addtimer(CALLBACK(src, .proc/restore_comp), rand(3,5) * 9)
 		if("access-apc")
 			var/ref = params["ref"]
-			playsound(src, "terminal_type", 50, FALSE)
+			playsound(src, SFX_TERMINAL_TYPE, 50, FALSE)
 			var/obj/machinery/power/apc/APC = locate(ref) in GLOB.apcs_list
 			if(!APC)
 				return
@@ -164,8 +166,8 @@
 				if("equipment", "lighting", "environ")
 					target.vars[type] = value
 				else
-					message_admins("Warning: possible href exploit by [key_name(usr)] - attempted to set [type] on [target] to [value]")
-					log_game("Warning: possible href exploit by [key_name(usr)] - attempted to set [type] on [target] to [value]")
+					message_admins("Warning: possible href exploit by [key_name(usr)] - attempted to set [html_encode(type)] on [target] to [html_encode(value)]")
+					log_game("Warning: possible href exploit by [key_name(usr)] - attempted to set [html_encode(type)] on [target] to [html_encode(value)]")
 					return
 
 			target.update_appearance()
@@ -194,7 +196,7 @@
 		return
 	obj_flags |= EMAGGED
 	log_game("[key_name(user)] emagged [src] at [AREACOORD(src)]")
-	playsound(src, "sparks", 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
+	playsound(src, SFX_SPARKS, 50, TRUE, SHORT_RANGE_SOUND_EXTRARANGE)
 
 /obj/machinery/computer/apc_control/proc/log_activity(log_text)
 	if(!should_log)
