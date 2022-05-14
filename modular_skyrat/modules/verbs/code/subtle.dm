@@ -15,9 +15,10 @@
 /datum/emote/living/subtle/run_emote(mob/user, params, type_override = null)
 	var/subtle_message
 	var/subtle_emote = params
-	if(is_banned_from(user, "emote"))
-		to_chat(user, "You cannot send subtle emotes (banned).")
-		return FALSE
+	if(SSdbcore.Connect())
+		if(is_banned_from(user, "emote"))
+			to_chat(user, "You cannot send subtle emotes (banned).")
+			return FALSE
 	else if(user.client && user.client.prefs.muted & MUTE_IC)
 		to_chat(user, "You cannot send IC messages (muted).")
 		return FALSE
@@ -84,9 +85,10 @@
 /datum/emote/living/subtler/run_emote(mob/user, params, type_override = null)
 	var/subtler_message
 	var/subtler_emote = params
-	if(is_banned_from(user, "emote"))
-		to_chat(user, "You cannot send subtle emotes (banned).")
-		return FALSE
+	if(SSdbcore.Connect())
+		if(is_banned_from(user, "emote"))
+			to_chat(user, "You cannot send subtle emotes (banned).")
+			return FALSE
 	else if(user.client && user.client.prefs.muted & MUTE_IC)
 		to_chat(user, "You cannot send IC messages (muted).")
 		return FALSE
