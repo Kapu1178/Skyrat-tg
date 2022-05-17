@@ -148,3 +148,4 @@ WaylandSmithy = Game Master
 Synthfox = Host
 Francinum = Host
 Fighterslam = Host
+Gonenoculer5 = Host
