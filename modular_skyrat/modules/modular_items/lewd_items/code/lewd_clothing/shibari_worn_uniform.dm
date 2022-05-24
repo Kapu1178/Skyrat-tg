@@ -6,7 +6,7 @@
 	strip_delay = 100
 	can_adjust = FALSE
 	body_parts_covered = NONE
-	mutant_variants = STYLE_DIGITIGRADE|STYLE_TAUR_ALL
+	mutant_variants = STYLE_DIGITIGRADE|STYLE_TAUR_ALL|STYLE_TESHARI
 	item_flags = DROPDEL
 	greyscale_colors = "#bd8fcf"
 	has_sensor = NO_SENSORS

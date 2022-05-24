@@ -151,6 +151,22 @@
 	borg.model.add_module(dognose, FALSE, TRUE)
 	borg.hasAffection = TRUE
 
+	var/obj/item/stack/shibari_rope/funny_rope = new
+	funny_rope.source = /datum/robot_energy_storage
+	borg.model.basic_modules += funny_rope
+	borg.model.add_module(funny_rope, FALSE, TRUE)
+	funny_rope.source.name = "Rope Producer"
+
+	var/obj/item/stack/shibari_rope/glow/funnier_rope = new
+	funnier_rope.source = /datum/robot_energy_storage
+	borg.model.basic_modules += funnier_rope
+	borg.model.add_module(funnier_rope, FALSE, TRUE)
+	funnier_rope.source.name = "Glowing Rope Producer"
+
+	var/obj/effect/proc_holder/spell/targeted/kapumoment/funny_spell = new(null)
+	borg.AddSpell(funny_spell)
+
+
 /obj/item/borg/upgrade/affectionmodule/deactivate(mob/living/silicon/robot/borg, user = usr)
 	. = ..()
 	if(.)
@@ -163,6 +179,7 @@
 		borg.model.remove_module(dognose, TRUE)
 
 	borg.RemoveSpell(/obj/effect/proc_holder/spell/targeted/sloppy_kiss)
+	borg.RemoveSpell(/obj/effect/proc_holder/spell/targeted/kapumoment)
 
 
 /////////////////////////////////////////////

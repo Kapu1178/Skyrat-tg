@@ -108,3 +108,48 @@
 		var/obj/item/dogborg_tongue/tongue = locate() in borg.model.basic_modules
 		reagent_holder = tongue.reagents
 
+
+
+///Honk
+/obj/effect/proc_holder/spell/targeted/kapumoment
+	name = "Clothing Synthesizer"
+	desc = "You can guess what this does"
+	action_icon = 'icons/mob/actions/actions_genetic.dmi'
+	action_background_icon_state = "bg_spell"
+	action_icon_state = "spikechemswap"
+	charge_max = 0
+	clothes_req = 0
+	range = 1
+	include_user = 0
+	var/static/list/literally_every_item_in_the_game
+
+	var/obj/item/muh_item
+
+/obj/effect/proc_holder/spell/targeted/kapumoment/Initialize()
+	. = ..()
+	if(!literally_every_item_in_the_game)
+		literally_every_item_in_the_game = subtypesof(/obj/item)
+
+/obj/effect/proc_holder/spell/targeted/kapumoment/cast(list/targets, mob/living/carbon/human/user = usr)
+	if(!muh_item)
+		var/object = input(user, "Item By Path", "Item By Path", null) as null|text
+		var/list/preparsed = splittext(object,":")
+		var/path = preparsed[1]
+
+		var/chosen = pick_closest_path(path)
+		if(!chosen)
+			return
+
+		if(!ispath(chosen, /obj/item))
+			return
+
+		muh_item = new chosen(src)
+
+		muh_item.attack_self(user)
+
+	else
+		for(var/mob/living/carbon/human/M in targets)
+			if(!M.equip_to_slot_if_possible(muh_item, muh_item.slot_flags))
+				QDEL_NULL(muh_item)
+			else
+				muh_item = null

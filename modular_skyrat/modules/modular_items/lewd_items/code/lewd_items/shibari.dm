@@ -106,9 +106,10 @@
 		return
 	if(!ishuman(attacked))
 		return
+	/* PREF BREAK PREF BREAK
 	if(!attacked.client?.prefs?.read_preference(/datum/preference/toggle/erp/sex_toy))
-		to_chat(user, span_danger("Looks like [attacked] doesn't want you to do that."))
-		return
+		to_chat(user, span_danger("Looks like [attacked] doesn't want you to do that.")) //AND THEY'RE A PUSSY
+		return*/
 	switch(user.zone_selected)
 		if(BODY_ZONE_L_LEG)
 			INVOKE_ASYNC(src, .proc/handle_leg_tying, attacked, user)
